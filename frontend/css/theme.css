@@ -1,0 +1,24 @@
+/* 主题变量定义 */
+:root {
+  --keroro-green: #7ed321;
+  --keroro-green-dark: #5ba315;
+  --keroro-green-light: #a8e063;
+  --keroro-bg: #0a1a0a;
+  --keroro-bg-card: #152015;
+  --keroro-bg-accent: #1f2f1f;
+  --keroro-border: #2f3f2f;
+  --keroro-primary: #7ed321;
+  --keroro-primary-soft: rgba(126, 211, 33, 0.15);
+  --keroro-text: #e8f5e8;
+  --keroro-text-muted: #9aa99a;
+  --keroro-danger: #ff6b6b;
+  --keroro-success: #51cf66;
+  --wallpaper-opacity: 0.15;
+  /* Keroro 小队角色主题色 */
+  --keroro-keroro: #7ed321;
+  --keroro-tamama: #ffe066;
+  --keroro-giroro: #ff6b6b;
+  --keroro-kururu: #ffd43b;
+  --keroro-dororo: #74c0fc;
+}
+

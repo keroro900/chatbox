@@ -1,0 +1,3874 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <title>Keroro 作战室</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <!-- CSS 文件 -->
+  <link rel="stylesheet" href="css/theme.css" />
+  <link rel="stylesheet" href="css/styles.css" />
+  <link rel="stylesheet" href="css/responsive.css" />
+  <link rel="stylesheet" href="css/improvements.css" />
+  <link rel="stylesheet" href="css/modern-ui.css" />
+</head>
+<body>
+<div class="app">
+  <header>
+    <div class="logo">
+      <div class="logo-badge">
+        <img src="images/keroro-logo.png" alt="Keroro" onerror="this.style.display='none'; this.parentElement.innerHTML='🐸';" />
+      </div>
+      <span>Keroro 作战室</span>
+    </div>
+    <!-- 导航栏移到header中 -->
+    <nav class="nav-tabs">
+      <button class="nav-tab active" data-view="workflow">📋 工作流</button>
+      <button class="nav-tab" data-view="runs">▶️ 运行</button>
+      <button class="nav-tab" data-view="settings">⚙️ 设置</button>
+    </nav>
+    <div class="top-actions">
+      <button class="icon-btn" id="btn-wallpaper" title="自定义壁纸">🖼️</button>
+    </div>
+  </header>
+
+  <main>
+    <!-- Workflow 视图 -->
+    <div class="view-container active" data-view="workflow">
+      <!-- 左侧面板：添加步骤和配置 -->
+      <div class="workflow-left-panel">
+        <section class="card">
+          <div class="card-header">
+            <div class="card-title">添加步骤</div>
+            <span class="badge">配置</span>
+          </div>
+          
+          <!-- 添加步骤按钮 -->
+          <div class="field" style="margin-bottom: 12px;">
+            <label style="margin-bottom: 8px; display: block; font-size: 13px; color: var(--keroro-text-muted);">
+              💡 选择步骤类型后点击添加
+            </label>
+            <select id="step-type-selector" style="width: 100%; margin-bottom: 8px; padding: 8px; background: rgba(10, 20, 10, 0.6); border: 1px solid var(--keroro-border); border-radius: 6px; color: var(--keroro-text); font-size: 13px;">
+              <option value="">-- 选择步骤类型 --</option>
+            </select>
+            <button class="btn" id="btn-add-step" style="width: 100%;" title="添加选中的步骤类型到工作流">
+              + 添加步骤
+            </button>
+            <div id="step-type-description" style="margin-top: 8px; padding: 8px; background: rgba(10, 20, 10, 0.4); border-radius: 6px; border: 1px solid var(--keroro-border); font-size: 11px; color: var(--keroro-text-muted); min-height: 40px; display: none !important; visibility: hidden;">
+              <div style="font-weight: bold; margin-bottom: 4px; color: var(--keroro-green);">步骤说明：</div>
+              <div id="step-type-description-text"></div>
+            </div>
+          </div>
+          
+          <!-- 快速模板 -->
+          <div class="field" style="margin-bottom: 12px;">
+            <label>快速模板</label>
+            <div style="display: flex; flex-direction: column; gap: 8px;">
+              <button class="btn-secondary" id="btn-template-rh" style="width: 100%;" title="使用 RunningHub 生模特模板">
+                使用 RunningHub 模板
+              </button>
+              <button class="btn-secondary" id="btn-template-gemini" style="width: 100%;" title="使用 Gemini 生模特模板">
+                使用 Gemini 模板
+              </button>
+            </div>
+          </div>
+          
+          <!-- 工作流模板 -->
+          <div class="field" style="margin-bottom: 12px;">
+            <label>工作流模板</label>
+            <select id="workflow-template-select" style="width:100%;">
+              <option value="">-- 选择模板或新建 --</option>
+            </select>
+          </div>
+          <div class="field" style="margin-bottom: 12px; display: flex; gap: 8px;">
+            <button class="btn-secondary" id="btn-save-workflow" style="flex: 1;" title="保存当前工作流为模板">
+              💾 保存
+            </button>
+            <button class="btn-secondary" id="btn-delete-workflow" style="flex: 1;" title="删除选中的模板">
+              🗑️ 删除
+            </button>
+          </div>
+          
+          <!-- 最大并发 -->
+          <div class="field" style="margin-bottom: 12px;">
+            <label>最大并发（本次工作流）</label>
+            <input id="wf-max-workers" type="number" min="1" max="16" value="3" />
+          </div>
+          
+          <!-- 目录配置 -->
+          <div class="field" style="margin-bottom: 12px;">
+            <button class="btn-secondary" id="btn-open-dirs-modal" style="width: 100%;">
+              📁 配置输入目录
+            </button>
+          </div>
+          <div class="field" style="margin-bottom: 12px; padding: 8px; background: rgba(10, 20, 10, 0.4); border-radius: 8px; border: 1px solid var(--keroro-border);">
+            <div style="font-size: 11px; color: var(--keroro-text-muted);">
+              <div><strong>图一:</strong> <span id="dir-1-preview">未设置</span></div>
+              <div style="margin-top: 4px;"><strong>图二:</strong> <span id="dir-2-preview">未设置</span></div>
+              <div style="margin-top: 4px;"><strong>图三:</strong> <span id="dir-3-preview">未设置</span></div>
+              <div style="margin-top: 4px;"><strong>图四:</strong> <span id="dir-4-preview">未设置</span></div>
+            </div>
+          </div>
+        </section>
+      </div>
+      
+      <!-- 右侧面板：步骤列表和编辑 -->
+      <div class="workflow-right-panel">
+        <section class="card">
+          <div class="card-header">
+            <div class="card-title">工作流步骤</div>
+          </div>
+          
+          <!-- 列表视图 -->
+          <div id="workflow-list-view">
+          <div class="workflow-hint" style="margin-bottom: 16px;">
+            <div class="workflow-hint-avatar">
+              <img src="images/keroro-shy.png" alt="Tamama" onerror="this.style.display='none'; this.parentElement.innerHTML='T';" />
+            </div>
+            <span style="font-size: 13px;">💡 提示：可以拖动步骤排序，点击右上角箭头调整优先级。</span>
+          </div>
+
+          <div class="steps-list" id="steps-container" style="max-height: 60vh; overflow-y: auto; min-height: 200px;"></div>
+          <div class="pagination" id="steps-pagination" style="display: none;">
+            <button class="pagination-btn" id="steps-prev">‹ 上一页</button>
+            <span class="pagination-info" id="steps-page-info">第 1 页，共 1 页</span>
+            <button class="pagination-btn" id="steps-next">下一页 ›</button>
+          </div>
+          </div>
+          
+        </section>
+        
+        <section class="card">
+          <div class="card-header">
+            <div class="card-title">工作流 JSON 预览</div>
+            <span class="badge">只读</span>
+          </div>
+          <div class="field">
+            <pre class="json-preview" id="wf-json-preview">{}</pre>
+          </div>
+        </section>
+      </div>
+    </div>
+
+    <!-- Runs 视图 -->
+    <div class="view-container" data-view="runs">
+      <section class="card">
+        <div class="card-header">
+          <div class="card-title">任务运行</div>
+          <span class="badge">执行</span>
+        </div>
+        
+        <!-- 目录配置 -->
+        <div class="field-row" style="margin-bottom: 12px;">
+          <button class="btn-secondary" id="btn-open-dirs-modal-runs" style="width: 100%;">
+            📁 配置输入目录
+          </button>
+        </div>
+        <div class="field-row" style="margin-bottom: 12px; padding: 8px; background: rgba(10, 20, 10, 0.4); border-radius: 8px; border: 1px solid var(--keroro-border);">
+          <div style="flex: 1; font-size: 11px; color: var(--keroro-text-muted);">
+            <div><strong>图一:</strong> <span id="dir-1-preview-runs">未设置</span></div>
+            <div style="margin-top: 4px;"><strong>图二:</strong> <span id="dir-2-preview-runs">未设置</span></div>
+            <div style="margin-top: 4px;"><strong>图三:</strong> <span id="dir-3-preview-runs">未设置</span></div>
+            <div style="margin-top: 4px;"><strong>图四:</strong> <span id="dir-4-preview-runs">未设置</span></div>
+          </div>
+        </div>
+
+        <!-- 任务控制 -->
+        <div style="display: flex; flex-direction: column; gap: 16px;">
+          <!-- 控制按钮组 -->
+          <div style="display: flex; gap: 12px; flex-wrap: wrap;">
+            <button class="btn" id="btn-start-job-runs" style="white-space: nowrap;">▶️ 开始任务</button>
+            <button class="btn-secondary" id="btn-refresh-job-runs" style="white-space: nowrap;">🔄 刷新</button>
+            <button class="btn-danger" id="btn-cancel-job-runs" style="white-space: nowrap;">⏹️ 中断</button>
+            <div style="flex: 1;"></div>
+            <button class="btn-secondary" id="btn-job-detail-runs" style="white-space: nowrap;">📋 详情</button>
+            <button class="btn-secondary" id="btn-view-results-runs" style="white-space: nowrap;" title="查看任务结果图片">🖼️ 结果</button>
+          </div>
+          
+          <!-- 任务信息卡片 -->
+          <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 16px;">
+            <div class="field" style="margin-bottom: 0;">
+              <label>任务 ID</label>
+              <input id="job-id-runs" type="text" readonly style="font-size: 12px; padding: 10px 14px; background: rgba(10, 20, 10, 0.6);" />
+            </div>
+            <div class="field" style="margin-bottom: 0;">
+              <label>状态</label>
+              <div id="job-status-pill-runs" class="status-pill" style="font-size: 12px; padding: 10px 14px; text-align: center;">-</div>
+            </div>
+            <div class="field" style="margin-bottom: 0; grid-column: span 2;">
+              <label>进度</label>
+              <div class="progress-bar" style="height: 24px; border-radius: 12px;">
+                <div class="progress-inner" id="job-progress-inner-runs"></div>
+              </div>
+            </div>
+            <div class="field" style="margin-bottom: 0; grid-column: span 2;">
+              <label>信息</label>
+              <div class="small-text" id="job-message-runs" style="font-size: 13px; padding: 10px 14px; background: rgba(10, 20, 10, 0.6); border-radius: 14px; border: 1px solid var(--keroro-border); min-height: 20px; display: flex; align-items: center;">尚未开始</div>
+            </div>
+          </div>
+        </div>
+        <details style="margin-top: 12px; padding: 12px; background: rgba(10, 20, 10, 0.4); border-radius: 12px; border: 1px solid var(--keroro-border);">
+          <summary style="font-size: 12px; font-weight: 600; color: var(--keroro-text-muted); cursor: pointer; user-select: none;">⚠️ 错误样本详情</summary>
+          <div class="details-content" id="job-errors-runs" style="font-size: 11px; max-height: 200px; overflow-y: auto; margin-top: 12px; padding: 12px; background: rgba(10, 20, 10, 0.6); border-radius: 8px; font-family: 'Consolas', 'Monaco', monospace; line-height: 1.6;">-</div>
+        </details>
+      </section>
+
+      <!-- 任务历史列表 -->
+      <section class="card">
+        <div class="card-header">
+          <div class="card-title">任务历史</div>
+          <span class="badge">记录</span>
+        </div>
+        <div id="job-history-list" style="max-height: 500px; overflow-y: auto; display: flex; flex-direction: column; gap: 12px;">
+          <div class="small-text" style="color: var(--keroro-text-muted); text-align: center; padding: 40px 20px; background: rgba(10, 20, 10, 0.3); border-radius: 12px; border: 1px dashed var(--keroro-border);">
+            📋 暂无任务记录
+          </div>
+        </div>
+      </section>
+    </div>
+
+    <!-- Settings 视图 -->
+    <div class="view-container" data-view="settings">
+      <section class="card">
+        <div class="card-header">
+          <div class="card-title">API 配置</div>
+          <span class="badge">设置</span>
+        </div>
+        <div style="margin-bottom:20px; padding:16px; background:linear-gradient(135deg, rgba(126,211,33,0.15), rgba(126,211,33,0.05)); border-radius:16px; border:1px solid var(--keroro-green); box-shadow: 0 4px 16px rgba(126, 211, 33, 0.2);">
+          <div style="display: flex; align-items: center; gap: 12px;">
+            <span style="font-size: 24px;">🐸</span>
+            <div>
+              <strong style="color:var(--keroro-green); font-size: 14px;">Keroro：</strong>
+              <span style="color:var(--keroro-text-muted); font-size: 13px;">配置好再开战啊！</span>
+            </div>
+          </div>
+        </div>
+        <div class="field">
+          <label>Qwen API 密钥</label>
+          <input id="cfg-qwen-key-settings" type="password" placeholder="sk-..." />
+        </div>
+        <div class="field">
+          <label>Qwen 基础地址</label>
+          <input id="cfg-qwen-base-settings" type="text" />
+        </div>
+        <div class="field">
+          <label>Qwen 模型</label>
+          <div style="display: flex; gap: 8px;">
+            <input id="cfg-qwen-model-settings" type="text" style="flex: 1;" />
+            <button class="btn-secondary" id="btn-fetch-models-qwen-settings" style="white-space: nowrap;">📋 获取模型</button>
+          </div>
+        </div>
+        <hr style="border:none;border-top:1px solid var(--keroro-border);margin:8px 0;">
+        <div class="field">
+          <label>RunningHub API 密钥</label>
+          <input id="cfg-rh-key-settings" type="password" />
+        </div>
+        <div class="field">
+          <label>RunningHub 基础地址</label>
+          <input id="cfg-rh-base-settings" type="text" />
+        </div>
+        <hr style="border:none;border-top:1px solid var(--keroro-border);margin:8px 0;">
+        <div class="field">
+          <label>Gemini t8star API 密钥</label>
+          <input id="cfg-gemini-t8-key-settings" type="password" />
+        </div>
+        <div class="field">
+          <label>Gemini t8star 基础地址</label>
+          <input id="cfg-gemini-t8-base-settings" type="text" />
+        </div>
+        <div class="field">
+          <label>Gemini t8star 模型</label>
+          <input id="cfg-gemini-t8-model-settings" type="text" placeholder="gemini-3-pro-image-preview" />
+        </div>
+        <div class="field">
+          <label>Gemini comfly API 密钥</label>
+          <input id="cfg-gemini-com-key-settings" type="password" />
+        </div>
+        <div class="field">
+          <label>Gemini comfly 基础地址</label>
+          <input id="cfg-gemini-com-base-settings" type="text" />
+        </div>
+        <div class="field">
+          <label>Gemini comfly 模型</label>
+          <input id="cfg-gemini-com-model-settings" type="text" placeholder="gemini-3-pro-image-preview" />
+        </div>
+        <div class="field">
+          <label>Gemini cherryin API 密钥</label>
+          <input id="cfg-gemini-cherryin-key-settings" type="password" />
+        </div>
+        <div class="field">
+          <label>Gemini cherryin 基础地址</label>
+          <input id="cfg-gemini-cherryin-base-settings" type="text" />
+        </div>
+        <div class="field">
+          <label>Gemini cherryin 模型</label>
+          <input id="cfg-gemini-cherryin-model-settings" type="text" placeholder="google/gemini-3-pro-image-preview" />
+        </div>
+        <div class="field">
+          <label>Gemini aihubmix API 密钥</label>
+          <input id="cfg-gemini-aihubmix-key-settings" type="password" />
+        </div>
+        <div class="field">
+          <label>Gemini aihubmix 基础地址</label>
+          <input id="cfg-gemini-aihubmix-base-settings" type="text" />
+        </div>
+        <div class="field">
+          <label>Gemini aihubmix 模型</label>
+          <input id="cfg-gemini-aihubmix-model-settings" type="text" placeholder="gemini-3-pro-image-preview" />
+        </div>
+        <div class="field">
+          <label>Gemini grsai API 密钥</label>
+          <input id="cfg-gemini-grsai-key-settings" type="password" />
+        </div>
+        <div class="field">
+          <label>Gemini grsai 基础地址</label>
+          <input id="cfg-gemini-grsai-base-settings" type="text" />
+        </div>
+        <div class="field">
+          <label>Gemini grsai 模型</label>
+          <input id="cfg-gemini-grsai-model-settings" type="text" placeholder="gemini-3-pro-image-preview" />
+        </div>
+        <hr style="border:none;border-top:1px solid var(--keroro-border);margin:8px 0;">
+        <div class="field">
+          <label>Kling Access Key（JWT 认证）</label>
+          <input id="cfg-kling-access-key-settings" type="password" placeholder="用于 JWT 认证" />
+          <div class="small-text" style="margin-top:4px; color:var(--keroro-text-muted);">
+            推荐使用：Access Key + Secret Key（JWT 认证方式）
+          </div>
+        </div>
+        <div class="field">
+          <label>Kling Secret Key（JWT 认证）</label>
+          <input id="cfg-kling-secret-key-settings" type="password" placeholder="用于 JWT 认证" />
+        </div>
+        <div class="field">
+          <label>Kling API 密钥（向后兼容，可选）</label>
+          <input id="cfg-kling-key-settings" type="password" placeholder="如果设置了 Access Key，此项将被忽略" />
+        </div>
+        <div class="field">
+          <label>Kling 基础地址</label>
+          <input id="cfg-kling-base-settings" type="text" />
+        </div>
+        <div class="field">
+          <label>Kling 默认模型</label>
+          <input id="cfg-kling-model-settings" type="text" placeholder="kling-v1-6" />
+        </div>
+        <hr style="border:none;border-top:1px solid var(--keroro-border);margin:8px 0;">
+        <div class="field">
+          <label>OhMyGPT API 密钥</label>
+          <input id="cfg-ohmygpt-key-settings" type="password" placeholder="sk-..." />
+        </div>
+        <div class="field">
+          <label>OhMyGPT 基础地址</label>
+          <input id="cfg-ohmygpt-base-settings" type="text" placeholder="https://api.ohmygpt.com" />
+        </div>
+        <div class="field">
+          <label>OhMyGPT 模型</label>
+          <div style="display: flex; gap: 8px;">
+            <input id="cfg-ohmygpt-model-settings" type="text" style="flex: 1;" />
+            <button class="btn-secondary" id="btn-fetch-models-ohmygpt-settings" style="white-space: nowrap;">📋 获取模型</button>
+          </div>
+        </div>
+        <hr style="border:none;border-top:1px solid var(--keroro-border);margin:8px 0;">
+        <div class="field">
+          <label>ModelScope API 密钥</label>
+          <input id="cfg-modelscope-key-settings" type="password" placeholder="ms-..." />
+        </div>
+        <div class="field">
+          <label>ModelScope 基础地址</label>
+          <input id="cfg-modelscope-base-settings" type="text" placeholder="https://api-inference.modelscope.cn/v1" />
+        </div>
+        <div class="field">
+          <label>ModelScope 模型</label>
+          <div style="display: flex; gap: 8px;">
+            <input id="cfg-modelscope-model-settings" type="text" placeholder="Qwen/Qwen3-VL-235B-A22B-Instruct" style="flex: 1;" />
+            <button class="btn-secondary" id="btn-fetch-models-modelscope-settings" style="white-space: nowrap;">📋 获取模型</button>
+          </div>
+        </div>
+        <hr style="border:none;border-top:1px solid var(--keroro-border);margin:8px 0;">
+        <div class="field">
+          <label>SiliconFlow API 密钥</label>
+          <input id="cfg-siliconflow-key-settings" type="password" placeholder="sk-..." />
+        </div>
+        <div class="field">
+          <label>SiliconFlow 基础地址</label>
+          <input id="cfg-siliconflow-base-settings" type="text" placeholder="https://api.siliconflow.cn/v1" />
+        </div>
+        <div class="field">
+          <label>SiliconFlow 模型</label>
+          <div style="display: flex; gap: 8px;">
+            <input id="cfg-siliconflow-model-settings" type="text" placeholder="Qwen/Qwen2-VL-7B-Instruct" style="flex: 1;" />
+            <button class="btn-secondary" id="btn-fetch-models-siliconflow-settings" style="white-space: nowrap;">📋 获取模型</button>
+          </div>
+        </div>
+        <hr style="border:none;border-top:1px solid var(--keroro-border);margin:8px 0;">
+        <div class="field">
+          <label>Cherryin.ai API 密钥</label>
+          <input id="cfg-cherryin-key-settings" type="password" placeholder="sk-..." />
+        </div>
+        <div class="field">
+          <label>Cherryin.ai 基础地址</label>
+          <input id="cfg-cherryin-base-settings" type="text" placeholder="https://api.cherryin.ai/v1" />
+        </div>
+        <div class="field">
+          <label>Cherryin.ai 模型</label>
+          <div style="display: flex; gap: 8px;">
+            <input id="cfg-cherryin-model-settings" type="text" placeholder="qwen/qwen-plus" style="flex: 1;" />
+            <button class="btn-secondary" id="btn-fetch-models-cherryin-settings" style="white-space: nowrap;">📋 获取模型</button>
+          </div>
+        </div>
+        <hr style="border:none;border-top:1px solid var(--keroro-border);margin:8px 0;">
+        <div class="field">
+          <label>公网基础地址 (Public Base URL)</label>
+          <input id="cfg-public-base-url-settings" type="text" placeholder="http://your-domain.com" />
+          <div class="small-text" style="margin-top:4px; color: var(--keroro-text-muted);">
+            用于可灵图生视频等需要公网URL的功能，例如：http://your-domain.com 或 https://your-domain.com
+          </div>
+        </div>
+        <hr style="border:none;border-top:1px solid var(--keroro-border);margin:8px 0;">
+        <div class="field">
+          <label>最大并发数</label>
+          <input id="cfg-max-workers-settings" type="number" min="1" max="16" />
+        </div>
+        <div style="display:flex; gap:12px; margin-top:12px; padding-top:16px; border-top: 1px solid rgba(126, 211, 33, 0.1);">
+          <button class="btn-secondary" id="btn-load-config-settings" style="flex: 1;">📥 读取配置</button>
+          <button class="btn" id="btn-save-config-settings" style="flex: 1;">💾 保存配置</button>
+        </div>
+        <div class="small-text" style="margin-top:12px; padding: 10px; background: rgba(10, 20, 10, 0.4); border-radius: 10px; border: 1px solid var(--keroro-border); font-size: 11px; color: var(--keroro-text-muted);">
+          💡 配置保存在后端的 <code style="color: var(--keroro-green);">config/config.json</code>，重启后依然生效。
+        </div>
+      </section>
+
+      <!-- API 状态卡片 -->
+      <section class="card">
+        <div class="card-header">
+          <div class="card-title">Keroro 控制室</div>
+          <span class="badge">API 状态</span>
+        </div>
+        <div class="api-status-card">
+          <div class="api-status-avatar">
+            <img src="images/keroro-angry.png" alt="Keroro" onerror="this.style.display='none'; this.parentElement.innerHTML='🐸';" />
+          </div>
+          <div class="api-status-text">API 状态</div>
+          <div class="api-status-badge" id="api-status-badge-settings">检查中...</div>
+          <button class="btn" id="btn-open-api-modal-settings" style="margin-top:8px;">
+            打开 API 控制室
+          </button>
+        </div>
+      </section>
+    </div>
+  </main>
+</div>
+
+<!-- API 控制室模态框 -->
+<div class="keroro-modal-overlay hidden" id="modal-api-overlay">
+  <div class="keroro-modal" id="modal-api">
+    <button class="keroro-modal-close" id="btn-close-api-modal">✕</button>
+    <div class="keroro-modal-header">
+      <div class="character-avatar">
+        <img src="images/keroro-salute.png" alt="Keroro" onerror="this.style.display='none'; this.parentElement.innerHTML='🐸';" />
+      </div>
+      <h3>API 控制室</h3>
+    </div>
+    <div style="margin-bottom:16px; padding:12px; background:rgba(126,211,33,0.1); border-radius:12px; border:1px solid var(--keroro-green);">
+      <strong style="color:var(--keroro-green);">Keroro：</strong>
+      <span style="color:var(--keroro-text-muted);">配置好再开战啊！</span>
+    </div>
+    <div class="field">
+      <label>Qwen API 密钥</label>
+      <input id="cfg-qwen-key" type="password" placeholder="sk-..." />
+    </div>
+    <div class="field">
+      <label>Qwen 基础地址</label>
+      <input id="cfg-qwen-base" type="text" />
+    </div>
+    <div class="field">
+      <label>Qwen 模型</label>
+      <div style="display: flex; gap: 8px;">
+        <input id="cfg-qwen-model" type="text" style="flex: 1;" />
+        <button class="btn-secondary" id="btn-fetch-models-qwen" style="white-space: nowrap;">📋 获取模型</button>
+      </div>
+    </div>
+    <hr style="border:none;border-top:1px solid var(--keroro-border);margin:8px 0;">
+    <div class="field">
+      <label>RunningHub API 密钥</label>
+      <input id="cfg-rh-key" type="password" />
+    </div>
+    <div class="field">
+      <label>RunningHub 基础地址</label>
+      <input id="cfg-rh-base" type="text" />
+    </div>
+    <hr style="border:none;border-top:1px solid var(--keroro-border);margin:8px 0;">
+    <div class="field">
+      <label>Gemini t8star API 密钥</label>
+      <input id="cfg-gemini-t8-key" type="password" />
+    </div>
+    <div class="field">
+      <label>Gemini t8star 基础地址</label>
+      <input id="cfg-gemini-t8-base" type="text" />
+    </div>
+    <div class="field">
+      <label>Gemini t8star 模型</label>
+      <input id="cfg-gemini-t8-model" type="text" placeholder="gemini-3-pro-image-preview" />
+    </div>
+    <div class="field">
+      <label>Gemini comfly API 密钥</label>
+      <input id="cfg-gemini-com-key" type="password" />
+    </div>
+    <div class="field">
+      <label>Gemini comfly 基础地址</label>
+      <input id="cfg-gemini-com-base" type="text" />
+    </div>
+    <div class="field">
+      <label>Gemini comfly 模型</label>
+      <input id="cfg-gemini-com-model" type="text" placeholder="gemini-3-pro-image-preview" />
+    </div>
+    <div class="field">
+      <label>Gemini cherryin API 密钥</label>
+      <input id="cfg-gemini-cherryin-key" type="password" />
+    </div>
+    <div class="field">
+      <label>Gemini cherryin 基础地址</label>
+      <input id="cfg-gemini-cherryin-base" type="text" />
+    </div>
+    <div class="field">
+      <label>Gemini cherryin 模型</label>
+      <input id="cfg-gemini-cherryin-model" type="text" placeholder="google/gemini-3-pro-image-preview" />
+    </div>
+    <div class="field">
+      <label>Gemini aihubmix API 密钥</label>
+      <input id="cfg-gemini-aihubmix-key" type="password" />
+    </div>
+    <div class="field">
+      <label>Gemini aihubmix 基础地址</label>
+      <input id="cfg-gemini-aihubmix-base" type="text" />
+    </div>
+    <div class="field">
+      <label>Gemini aihubmix 模型</label>
+      <input id="cfg-gemini-aihubmix-model" type="text" placeholder="gemini-3-pro-image-preview" />
+    </div>
+    <div class="field">
+      <label>Gemini grsai API 密钥</label>
+      <input id="cfg-gemini-grsai-key" type="password" />
+    </div>
+    <div class="field">
+      <label>Gemini grsai 基础地址</label>
+      <input id="cfg-gemini-grsai-base" type="text" />
+    </div>
+    <div class="field">
+      <label>Gemini grsai 模型</label>
+      <input id="cfg-gemini-grsai-model" type="text" placeholder="gemini-3-pro-image-preview" />
+    </div>
+    <hr style="border:none;border-top:1px solid var(--keroro-border);margin:8px 0;">
+    <div class="field">
+      <label>Kling Access Key（JWT 认证）</label>
+      <input id="cfg-kling-access-key" type="password" placeholder="用于 JWT 认证" />
+      <div class="small-text" style="margin-top:4px; color:var(--keroro-text-muted);">
+        推荐使用：Access Key + Secret Key（JWT 认证方式）
+      </div>
+    </div>
+    <div class="field">
+      <label>Kling Secret Key（JWT 认证）</label>
+      <input id="cfg-kling-secret-key" type="password" placeholder="用于 JWT 认证" />
+    </div>
+    <div class="field">
+      <label>Kling API 密钥（向后兼容，可选）</label>
+      <input id="cfg-kling-key" type="password" placeholder="如果设置了 Access Key，此项将被忽略" />
+    </div>
+    <div class="field">
+      <label>Kling 基础地址</label>
+      <input id="cfg-kling-base" type="text" />
+    </div>
+    <div class="field">
+      <label>Kling 默认模型</label>
+      <input id="cfg-kling-model" type="text" placeholder="kling-v1-6" />
+    </div>
+    <hr style="border:none;border-top:1px solid var(--keroro-border);margin:8px 0;">
+    <div class="field">
+      <label>OhMyGPT API 密钥</label>
+      <input id="cfg-ohmygpt-key" type="password" placeholder="sk-..." />
+    </div>
+    <div class="field">
+      <label>OhMyGPT 基础地址</label>
+      <input id="cfg-ohmygpt-base" type="text" placeholder="https://api.ohmygpt.com" />
+    </div>
+    <div class="field">
+      <label>OhMyGPT 模型</label>
+      <div style="display: flex; gap: 8px;">
+        <input id="cfg-ohmygpt-model" type="text" style="flex: 1;" />
+        <button class="btn-secondary" id="btn-fetch-models-ohmygpt" style="white-space: nowrap;">📋 获取模型</button>
+      </div>
+    </div>
+    <hr style="border:none;border-top:1px solid var(--keroro-border);margin:8px 0;">
+    <div class="field">
+      <label>ModelScope API 密钥</label>
+      <input id="cfg-modelscope-key" type="password" placeholder="ms-..." />
+    </div>
+    <div class="field">
+      <label>ModelScope 基础地址</label>
+      <input id="cfg-modelscope-base" type="text" placeholder="https://api-inference.modelscope.cn/v1" />
+    </div>
+    <div class="field">
+      <label>ModelScope 模型</label>
+      <div style="display: flex; gap: 8px;">
+        <input id="cfg-modelscope-model" type="text" placeholder="Qwen/Qwen3-VL-235B-A22B-Instruct" style="flex: 1;" />
+        <button class="btn-secondary" id="btn-fetch-models-modelscope" style="white-space: nowrap;">📋 获取模型</button>
+      </div>
+    </div>
+    <hr style="border:none;border-top:1px solid var(--keroro-border);margin:8px 0;">
+    <div class="field">
+      <label>SiliconFlow API 密钥</label>
+      <input id="cfg-siliconflow-key" type="password" placeholder="sk-..." />
+    </div>
+    <div class="field">
+      <label>SiliconFlow 基础地址</label>
+      <input id="cfg-siliconflow-base" type="text" placeholder="https://api.siliconflow.cn/v1" />
+    </div>
+    <div class="field">
+      <label>SiliconFlow 模型</label>
+      <div style="display: flex; gap: 8px;">
+        <input id="cfg-siliconflow-model" type="text" placeholder="Qwen/Qwen2-VL-7B-Instruct" style="flex: 1;" />
+        <button class="btn-secondary" id="btn-fetch-models-siliconflow" style="white-space: nowrap;">📋 获取模型</button>
+      </div>
+    </div>
+    <hr style="border:none;border-top:1px solid var(--keroro-border);margin:8px 0;">
+    <div class="field">
+      <label>Cherryin.ai API 密钥</label>
+      <input id="cfg-cherryin-key" type="password" placeholder="sk-..." />
+    </div>
+    <div class="field">
+      <label>Cherryin.ai 基础地址</label>
+      <input id="cfg-cherryin-base" type="text" placeholder="https://api.cherryin.ai/v1" />
+    </div>
+    <div class="field">
+      <label>Cherryin.ai 模型</label>
+      <div style="display: flex; gap: 8px;">
+        <input id="cfg-cherryin-model" type="text" placeholder="qwen/qwen-plus" style="flex: 1;" />
+        <button class="btn-secondary" id="btn-fetch-models-cherryin" style="white-space: nowrap;">📋 获取模型</button>
+      </div>
+    </div>
+    <hr style="border:none;border-top:1px solid var(--keroro-border);margin:8px 0;">
+    <div class="field">
+      <label>公网基础地址 (Public Base URL)</label>
+      <input id="cfg-public-base-url" type="text" placeholder="http://your-domain.com" />
+      <div class="small-text" style="margin-top:4px; color: var(--keroro-text-muted);">
+        用于可灵图生视频等需要公网URL的功能，例如：http://your-domain.com 或 https://your-domain.com
+      </div>
+    </div>
+    <hr style="border:none;border-top:1px solid var(--keroro-border);margin:8px 0;">
+    <div class="field">
+      <label>最大并发数</label>
+      <input id="cfg-max-workers" type="number" min="1" max="16" />
+    </div>
+    <div style="display:flex; gap:10px; margin-top:8px;">
+      <button class="btn-secondary" id="btn-load-config">读取配置</button>
+      <button class="btn" id="btn-save-config">保存配置</button>
+      <button class="btn" id="btn-health-check" style="background: var(--keroro-success);">🔍 健康检测</button>
+    </div>
+    <div class="small-text" style="margin-top:6px;">
+      配置保存在后端的 <code>config/config.json</code>，重启后依然生效。
+    </div>
+  </div>
+</div>
+
+<!-- 任务详情模态框 -->
+<div class="keroro-modal-overlay hidden" id="modal-job-detail-overlay">
+  <div class="keroro-modal" id="modal-job-detail">
+    <button class="keroro-modal-close" id="btn-close-job-detail">✕</button>
+    <div class="keroro-modal-header">
+      <div class="character-avatar" style="background:linear-gradient(135deg, var(--keroro-kururu), #ffaa00);">
+        <img src="images/keroro-baby.png" alt="Kururu" onerror="this.style.display='none'; this.parentElement.innerHTML='Ku';" />
+      </div>
+      <h3>任务详情</h3>
+    </div>
+    <div id="job-detail-basic" style="margin-bottom:20px;">
+      <div class="field">
+        <label>任务 ID</label>
+        <div class="small-text" id="job-detail-id">-</div>
+      </div>
+      <div class="field">
+        <label>状态</label>
+        <div id="job-detail-status" class="status-pill">-</div>
+      </div>
+      <div class="field">
+        <label>进度</label>
+        <div class="small-text" id="job-detail-progress">-</div>
+      </div>
+      <div class="field">
+        <label>信息</label>
+        <div class="small-text" id="job-detail-message">-</div>
+      </div>
+    </div>
+    <div>
+      <h4 style="color:var(--keroro-text-muted); margin-bottom:12px; font-size:14px;">错误样本列表</h4>
+      <pre class="json-preview" id="job-detail-errors" style="max-height:300px;">-</pre>
+    </div>
+    <div id="job-detail-videos" style="margin-top:20px; display:none;">
+      <h4 style="color:var(--keroro-text-muted); margin-bottom:12px; font-size:14px;">视频预览</h4>
+      <div id="job-detail-video-container" style="display:flex; flex-direction:column; gap:12px;">
+        <!-- 视频将动态插入这里 -->
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- 保存工作流模板模态框 -->
+<div class="keroro-modal-overlay hidden" id="modal-save-template-overlay">
+  <div class="keroro-modal" id="modal-save-template">
+    <button class="keroro-modal-close" id="btn-close-save-template">✕</button>
+    <div class="keroro-modal-header">
+      <div class="character-avatar" style="background:linear-gradient(135deg, var(--keroro-green), #7ed321);">
+        <img src="images/keroro.png" alt="Keroro" onerror="this.style.display='none'; this.parentElement.innerHTML='K';" />
+      </div>
+      <h3>保存工作流模板</h3>
+    </div>
+    <div style="padding: 20px;">
+      <div class="field" style="margin-bottom: 16px;">
+        <label>模板名称 <span style="color: var(--keroro-danger);">*</span></label>
+        <input type="text" id="save-template-name" placeholder="请输入模板名称" style="width: 100%; padding: 10px; border-radius: 8px; border: 1px solid var(--keroro-border); background: var(--keroro-bg-secondary); color: var(--keroro-text);" />
+      </div>
+      <div class="field" style="margin-bottom: 16px;">
+        <label>描述（可选）</label>
+        <textarea id="save-template-description" placeholder="请输入模板描述" rows="3" style="width: 100%; padding: 10px; border-radius: 8px; border: 1px solid var(--keroro-border); background: var(--keroro-bg-secondary); color: var(--keroro-text); resize: vertical;"></textarea>
+      </div>
+      <div class="field" style="margin-bottom: 20px;">
+        <label>标签（可选，用逗号分隔）</label>
+        <input type="text" id="save-template-tags" placeholder="例如: 视频生成, 批量处理" style="width: 100%; padding: 10px; border-radius: 8px; border: 1px solid var(--keroro-border); background: var(--keroro-bg-secondary); color: var(--keroro-text);" />
+      </div>
+      <div style="display: flex; gap: 12px; justify-content: flex-end;">
+        <button class="btn-secondary" id="btn-cancel-save-template">取消</button>
+        <button class="btn-primary" id="btn-confirm-save-template">💾 保存</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- 角色贴纸 -->
+<div class="keroro-float-squad">
+  <button class="squad-avatar squad-keroro" data-character="keroro" title="Keroro 军曹">
+    <img src="images/keroro.png" alt="Keroro" onerror="this.style.display='none'; this.parentElement.innerHTML='K';" />
+  </button>
+  <button class="squad-avatar squad-tamama" data-character="tamama" title="Tamama 二等兵">
+    <img src="images/tamama.png" alt="Tamama" onerror="this.style.display='none'; this.parentElement.innerHTML='T';" />
+  </button>
+  <button class="squad-avatar squad-giroro" data-character="giroro" title="Giroro 下士">
+    <img src="images/giroro.png" alt="Giroro" onerror="this.style.display='none'; this.parentElement.innerHTML='G';" />
+  </button>
+  <button class="squad-avatar squad-kururu" data-character="kururu" title="Kururu 曹长">
+    <img src="images/kururu.png" alt="Kururu" onerror="this.style.display='none'; this.parentElement.innerHTML='Ku';" />
+  </button>
+  <button class="squad-avatar squad-dororo" data-character="dororo" title="Dororo 兵长">
+    <img src="images/dororo.png" alt="Dororo" onerror="this.style.display='none'; this.parentElement.innerHTML='D';" />
+  </button>
+</div>
+
+<!-- 角色对话模态框 -->
+<div class="keroro-dialog-overlay hidden" id="keroro-dialog-overlay">
+  <div class="keroro-dialog" id="keroro-dialog">
+    <div class="dialog-character" id="keroro-dialog-character"></div>
+    <div class="dialog-bubble" id="keroro-dialog-text"></div>
+    <button class="btn-secondary small" id="keroro-dialog-close" style="width:100%;">关闭</button>
+  </div>
+</div>
+
+<!-- 结果浏览器模态框 -->
+<div class="keroro-modal-overlay hidden" id="modal-results-overlay">
+  <div class="keroro-modal" id="modal-results" style="max-width: 90vw; width: 1200px;">
+    <button class="keroro-modal-close" id="btn-close-results">✕</button>
+    <div class="keroro-modal-header">
+      <div class="character-avatar" style="background:linear-gradient(135deg, var(--keroro-kururu), #ffaa00);">
+        <img src="images/keroro-baby.png" alt="Kururu" onerror="this.style.display='none'; this.parentElement.innerHTML='Ku';" />
+      </div>
+      <h3>结果浏览器 🖼️</h3>
+    </div>
+    <div id="results-container" style="display: grid; grid-template-columns: 200px 1fr; gap: 20px; min-height: 500px;">
+      <div style="background: rgba(10, 20, 10, 0.6); border-radius: 12px; padding: 16px; border: 1px solid var(--keroro-border);">
+        <h4 style="color: var(--keroro-green); margin-bottom: 12px; font-size: 14px;">Look 列表</h4>
+        <div id="results-look-list" style="display: flex; flex-direction: column; gap: 8px; max-height: 450px; overflow-y: auto;">
+          <div class="small-text" style="color: var(--keroro-text-muted);">加载中...</div>
+        </div>
+      </div>
+      <div style="background: rgba(10, 20, 10, 0.6); border-radius: 12px; padding: 16px; border: 1px solid var(--keroro-border);">
+        <h4 style="color: var(--keroro-green); margin-bottom: 12px; font-size: 14px;">输出文件</h4>
+        <div id="results-outputs" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 16px; max-height: 450px; overflow-y: auto;">
+          <div class="small-text" style="color: var(--keroro-text-muted);">选择一个 Look 查看输出</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Step 高级设置模态框 -->
+<div class="keroro-modal-overlay hidden" id="modal-step-advanced-overlay">
+  <div class="keroro-modal" id="modal-step-advanced" style="max-width: 800px;">
+    <button class="keroro-modal-close" id="btn-close-step-advanced">✕</button>
+    <div class="keroro-modal-header">
+      <div class="character-avatar">
+        <img src="images/keroro-shy.png" alt="Tamama" onerror="this.style.display='none'; this.parentElement.innerHTML='T';" />
+      </div>
+      <h3>高级设置 ⚙️</h3>
+    </div>
+    <div id="step-advanced-content" style="display: flex; flex-direction: column; gap: 16px;">
+      <!-- 动态内容 -->
+    </div>
+  </div>
+</div>
+
+<!-- 目录配置模态框 -->
+<div class="keroro-modal-overlay hidden" id="modal-dirs-overlay">
+  <div class="keroro-modal" id="modal-dirs" style="max-width: 600px;">
+    <button class="keroro-modal-close" id="btn-close-dirs-modal">✕</button>
+    <div class="keroro-modal-header">
+      <div class="character-avatar">
+        <img src="images/keroro-shy.png" alt="Tamama" onerror="this.style.display='none'; this.parentElement.innerHTML='T';" />
+      </div>
+      <h3>配置输入目录 📁</h3>
+    </div>
+    <div style="margin-bottom:16px; padding:12px; background:rgba(126,211,33,0.1); border-radius:12px; border:1px solid var(--keroro-green);">
+      <strong style="color:var(--keroro-green);">提示：</strong>
+      <span style="color:var(--keroro-text-muted);">图一目录必填，其他目录可选。系统支持智能文件匹配（文件名前缀、序号、顺序匹配）。</span>
+    </div>
+    <div class="field">
+      <label>图一目录（必填，前面上衣）</label>
+      <input id="input-dir-1" type="text" placeholder="例如: C:\Users\Administrator\Pictures\img_1 或 ./img_1" />
+      <div class="small-text" style="margin-top:4px; color:var(--keroro-text-muted);">
+        必填，所有图片将基于此目录的文件名进行匹配
+      </div>
+    </div>
+    <div class="field">
+      <label>图二目录（可选，后面上衣）</label>
+      <input id="input-dir-2" type="text" placeholder="例如: ./img_2" />
+      <div class="small-text" style="margin-top:4px; color:var(--keroro-text-muted);">
+        可选，文件名需与图一目录中的文件名对应（支持智能匹配）
+      </div>
+    </div>
+    <div class="field">
+      <label>图三目录（可选，前面裤子）</label>
+      <input id="input-dir-3" type="text" placeholder="例如: ./img_3" />
+      <div class="small-text" style="margin-top:4px; color:var(--keroro-text-muted);">
+        可选，文件名需与图一目录中的文件名对应（支持智能匹配）
+      </div>
+    </div>
+    <div class="field">
+      <label>图四目录（可选，后面裤子）</label>
+      <input id="input-dir-4" type="text" placeholder="例如: ./img_4" />
+      <div class="small-text" style="margin-top:4px; color:var(--keroro-text-muted);">
+        可选，文件名需与图一目录中的文件名对应（支持智能匹配）
+      </div>
+    </div>
+    <div style="display:flex; gap:10px; margin-top:16px;">
+      <button class="btn-secondary" id="btn-clear-dirs" style="flex:1;">清空</button>
+      <button class="btn" id="btn-save-dirs" style="flex:1;">保存并关闭</button>
+    </div>
+  </div>
+</div>
+
+<!-- 健康检测模态框 -->
+<div class="keroro-modal-overlay hidden" id="modal-health-check-overlay">
+  <div class="keroro-modal" id="modal-health-check" style="max-width: 600px;">
+    <button class="keroro-modal-close" id="btn-close-health-check">✕</button>
+    <div class="keroro-modal-header">
+      <div class="character-avatar">
+        <img src="images/keroro-salute.png" alt="Keroro" onerror="this.style.display='none'; this.parentElement.innerHTML='🔍';" />
+      </div>
+      <h3>模型健康检测</h3>
+    </div>
+    <div style="margin-bottom:16px; padding:12px; background:rgba(255,193,7,0.1); border-radius:12px; border:1px solid rgba(255,193,7,0.3);">
+      <div style="display:flex; align-items:start; gap:8px;">
+        <span style="color: #ff9800; font-size:20px;">⚠️</span>
+        <div>
+          <strong style="color:#ff9800;">警告</strong>
+          <div style="color:var(--keroro-text-muted); font-size:13px; margin-top:4px;">
+            健康检查需要发送请求,请谨慎使用。按次收费的模型可能产生更多费用,请自行承担。
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="field">
+      <label>使用密钥</label>
+      <div style="display:flex; gap:8px;">
+        <button class="btn-toggle" id="health-check-single-key" data-value="single" style="flex:1;">单个</button>
+        <button class="btn-toggle" id="health-check-all-keys" data-value="all" style="flex:1;">所有</button>
+      </div>
+    </div>
+    <div class="field">
+      <label>并发检测</label>
+      <div style="display:flex; gap:8px;">
+        <button class="btn-toggle" id="health-check-concurrent-off" data-value="off" style="flex:1;">关闭</button>
+        <button class="btn-toggle" id="health-check-concurrent-on" data-value="on" style="flex:1;">开启</button>
+      </div>
+    </div>
+    <div class="field">
+      <label>超时</label>
+      <div style="display:flex; gap:8px; align-items:center;">
+        <input type="number" id="health-check-timeout" value="15" min="5" max="60" style="flex:1;" />
+        <span style="color:var(--keroro-text-muted);">s</span>
+      </div>
+    </div>
+    <div id="health-check-results" style="margin-top:16px; max-height:400px; overflow-y:auto; display:none;">
+      <h4 style="color:var(--keroro-text-muted); margin-bottom:12px; font-size:14px;">检测结果</h4>
+      <div id="health-check-results-content"></div>
+    </div>
+    <div style="display:flex; gap:10px; margin-top:16px;">
+      <button class="btn-secondary" id="btn-health-check-cancel" style="flex:1;">取消</button>
+      <button class="btn" id="btn-health-check-start" style="flex:1; background:var(--keroro-success);">开始</button>
+    </div>
+  </div>
+</div>
+
+<!-- Toast 通知容器 -->
+<div class="toast-container" id="toast-container"></div>
+
+<!-- 壁纸设置弹窗 -->
+<div class="wallpaper-settings" id="wallpaper-settings">
+  <h3>🎨 自定义壁纸</h3>
+  <div class="wallpaper-controls">
+    <div class="field">
+      <label>壁纸 URL（支持图片链接）</label>
+      <input type="text" id="wallpaper-url" placeholder="https://example.com/image.jpg" />
+    </div>
+    <div class="field">
+      <label>或上传本地图片</label>
+      <input type="file" id="wallpaper-upload" accept="image/*" style="display:none;" />
+      <button class="btn-secondary" id="btn-upload-wallpaper" style="width:100%;">📁 选择图片文件</button>
+      <div class="small-text" id="upload-status" style="margin-top:4px; color:var(--keroro-text-muted);"></div>
+    </div>
+    <div class="field">
+      <label>壁纸透明度</label>
+      <input type="range" id="wallpaper-opacity" min="0" max="100" value="15" />
+      <div class="small-text" id="opacity-value">15%</div>
+    </div>
+    <div class="field">
+      <label>预览</label>
+      <div class="wallpaper-preview" id="wallpaper-preview"></div>
+    </div>
+    <div style="display:flex; gap:10px; margin-top:12px;">
+      <button class="btn" id="btn-apply-wallpaper">应用</button>
+      <button class="btn-secondary" id="btn-reset-wallpaper">重置</button>
+      <button class="btn-secondary" id="btn-close-wallpaper">关闭</button>
+    </div>
+  </div>
+</div>
+
+<!-- 模块化 JavaScript 文件 -->
+<!-- app.js 已移除，使用内联脚本统一管理，避免双重初始化和变量重复 -->
+
+<!-- 原有的内联脚本（保留用于逐步迁移） -->
+<script type="module">
+  // ========== 模块导入 ==========
+  // 统一使用相对路径，确保模块正确加载
+  // 使用 try-catch 包裹模块导入，确保错误能被捕获
+  let showToast, getApiBase, STEP_TYPES, getStepTypeOptions, getStepTypeName, getStepTypeIcon, getStepTypeDescription, keroroLines;
+  let closeModal, openModal, toggleModal, switchView, showKeroroDialog, hideKeroroDialog, setStatusPill;
+  let initWorkflow, openStepAdvancedSettings, renderAdvancedSettings, workflow, addStep, renderSteps, updateWorkflowPreview, buildWorkflowPayload, normalizeWorkflow, getImageSourceOptions, getPromptSourceOptions;
+  let initApi, loadConfig, API, startJob, refreshJob, cancelJob;
+  let initWorkflowTemplates, saveCurrentWorkflow, deleteTemplate, loadTemplates, confirmSaveTemplate, getSelectedTemplateId;
+  let initHistory, loadJobHistory;
+  let initModelPickerDemo;
+  
+  try {
+    // 使用动态导入，可以捕获加载错误
+    // 按照依赖关系顺序加载模块，确保依赖先加载
+    console.log('📦 开始加载模块...');
+    
+    console.log('  → 加载 utils.js');
+    const utilsModule = await import('./js/utils.js');
+    showToast = utilsModule.showToast;
+    getApiBase = utilsModule.getApiBase;
+    
+    console.log('  → 加载 config.js');
+    const configModule = await import('./js/config.js');
+    STEP_TYPES = configModule.STEP_TYPES;
+    getStepTypeOptions = configModule.getStepTypeOptions;
+    getStepTypeName = configModule.getStepTypeName;
+    getStepTypeIcon = configModule.getStepTypeIcon;
+    getStepTypeDescription = configModule.getStepTypeDescription;
+    keroroLines = configModule.keroroLines;
+    
+    console.log('  → 加载 logger.js (api.js 的依赖)');
+    await import('./js/logger.js');
+    
+    console.log('  → 加载 validation.js (api.js 的依赖)');
+    await import('./js/validation.js');
+    
+    console.log('  → 加载 ui.js');
+    const uiModule = await import('./js/ui.js');
+    closeModal = uiModule.closeModal;
+    openModal = uiModule.openModal;
+    toggleModal = uiModule.toggleModal;
+    switchView = uiModule.switchView;
+    showKeroroDialog = uiModule.showKeroroDialog;
+    hideKeroroDialog = uiModule.hideKeroroDialog;
+    setStatusPill = uiModule.setStatusPill;
+    
+    console.log('  → 加载 api.js');
+    const apiModule = await import('./js/api.js');
+    initApi = apiModule.initApi;
+    loadConfig = apiModule.loadConfig;
+    API = apiModule.API;
+    startJob = apiModule.startJob;
+    refreshJob = apiModule.refreshJob;
+    cancelJob = apiModule.cancelJob;
+    
+    console.log('  → 加载 workflow.js');
+    const workflowModule = await import('./js/workflow.js');
+    initWorkflow = workflowModule.initWorkflow;
+    openStepAdvancedSettings = workflowModule.openStepAdvancedSettings;
+    renderAdvancedSettings = workflowModule.renderAdvancedSettings;
+    workflow = workflowModule.workflow;
+    addStep = workflowModule.addStep;
+    renderSteps = workflowModule.renderSteps;
+    updateWorkflowPreview = workflowModule.updateWorkflowPreview;
+    buildWorkflowPayload = workflowModule.buildWorkflowPayload;
+    normalizeWorkflow = workflowModule.normalizeWorkflow;
+    getImageSourceOptions = workflowModule.getImageSourceOptions;
+    getPromptSourceOptions = workflowModule.getPromptSourceOptions;
+    
+    console.log('  → 加载 model-picker.js (model-picker-demo.js 的依赖)');
+    await import('./js/model-picker.js');
+    
+    console.log('  → 加载 model-picker-demo.js');
+    const modelPickerModule = await import('./js/model-picker-demo.js');
+    initModelPickerDemo = modelPickerModule.initModelPickerDemo;
+    
+    console.log('  → 加载 workflow-templates.js');
+    const templatesModule = await import('./js/workflow-templates.js');
+    initWorkflowTemplates = templatesModule.initWorkflowTemplates;
+    saveCurrentWorkflow = templatesModule.saveCurrentWorkflow;
+    deleteTemplate = templatesModule.deleteTemplate;
+    loadTemplates = templatesModule.loadTemplates;
+    confirmSaveTemplate = templatesModule.confirmSaveTemplate;
+    getSelectedTemplateId = templatesModule.getSelectedTemplateId;
+    
+    console.log('  → 加载 history.js');
+    const historyModule = await import('./js/history.js');
+    initHistory = historyModule.initHistory;
+    loadJobHistory = historyModule.loadJobHistory;
+    
+    console.log('  → 加载 fixes.js (系统修复补丁)');
+    const fixesModule = await import('./js/fixes.js');
+    window.syncDirectoryInputs = fixesModule.syncDirectoryInputs;
+    window.startJobPolling = fixesModule.startJobPolling;
+    window.stopJobPolling = fixesModule.stopJobPolling;
+    window.initFixes = fixesModule.initFixes;
+    
+    // ========== 全局变量挂载 ==========
+    // 将模块导出的函数和变量挂载到 window 对象，供内联脚本使用
+  window.showToast = showToast;
+    window.getApiBase = getApiBase;
+  window.STEP_TYPES = STEP_TYPES;
+  window.getStepTypeOptions = getStepTypeOptions;
+    window.getStepTypeName = getStepTypeName;
+    window.getStepTypeIcon = getStepTypeIcon;
+    window.getStepTypeDescription = getStepTypeDescription;
+  window.keroroLines = keroroLines;
+    
+    // UI 相关函数
+    window.closeModal = closeModal;
+    window.openModal = openModal;
+    window.toggleModal = toggleModal;
+    window.switchView = switchView;
+    window.showKeroroDialog = showKeroroDialog;
+    window.hideKeroroDialog = hideKeroroDialog;
+    window.setStatusPill = setStatusPill;
+    
+    // 工作流相关函数
+    window.openStepAdvancedSettings = openStepAdvancedSettings;
+    window.renderAdvancedSettings = renderAdvancedSettings;
+    window.workflow = workflow;
+    window.addStep = addStep;
+    window.renderSteps = renderSteps;
+    window.updateWorkflowPreview = updateWorkflowPreview;
+    window.buildWorkflowPayload = buildWorkflowPayload;
+    window.normalizeWorkflow = normalizeWorkflow;
+    window.getImageSourceOptions = getImageSourceOptions;
+    window.getPromptSourceOptions = getPromptSourceOptions;
+    
+    // API 相关函数
+    window.loadConfig = loadConfig;
+    window.API = API;
+    window.startJob = startJob;
+    window.refreshJob = refreshJob;
+    window.cancelJob = cancelJob;
+    
+    // 工作流模板相关函数
+    window.initWorkflowTemplates = initWorkflowTemplates;
+    window.saveCurrentWorkflow = saveCurrentWorkflow;
+    window.deleteTemplate = deleteTemplate;
+    window.loadTemplates = loadTemplates;
+    window.confirmSaveTemplate = confirmSaveTemplate;
+    window.getSelectedTemplateId = getSelectedTemplateId;
+    
+    // 历史记录相关函数
+    window.loadJobHistory = loadJobHistory;
+    
+    console.log('✅ 所有模块已成功加载并挂载到 window 对象');
+    
+    // ========== 任务管理包装函数 ==========
+    // 保存原始 API 函数
+    const startJobApi = startJob;
+    const refreshJobApi = refreshJob;
+    const cancelJobApi = cancelJob;
+    
+    // 创建包装函数，从 UI 收集参数并调用 API
+    window.startJob = async function() {
+      try {
+        console.log('[任务] 开始启动任务...');
+        
+        // 获取目录输入
+        const inputDir1El = window.inputDir1El || document.getElementById("input-dir-1");
+        const inputDir2El = window.inputDir2El || document.getElementById("input-dir-2");
+        const inputDir3El = window.inputDir3El || document.getElementById("input-dir-3");
+        const inputDir4El = window.inputDir4El || document.getElementById("input-dir-4");
+        
+        const inputDir1 = inputDir1El ? inputDir1El.value.trim() : '';
+        const inputDir2 = inputDir2El ? inputDir2El.value.trim() : '';
+        const inputDir3 = inputDir3El ? inputDir3El.value.trim() : '';
+        const inputDir4 = inputDir4El ? inputDir4El.value.trim() : '';
+        
+        console.log('[任务] 目录配置:', { dir1: inputDir1, dir2: inputDir2, dir3: inputDir3, dir4: inputDir4 });
+        
+        // 提前验证目录（给用户更友好的提示）
+        if (!inputDir1) {
+          const errorMsg = "请先配置图一目录（必填）";
+          console.warn('[任务]', errorMsg);
+          if (window.showToast && typeof window.showToast === 'function') {
+            window.showToast(errorMsg, "warning", 3000);
+          } else {
+            alert(errorMsg);
+          }
+          // 自动打开目录配置模态框
+          if (window.openModal && typeof window.openModal === 'function') {
+            setTimeout(() => {
+              window.openModal("modal-dirs-overlay");
+            }, 500);
+          }
+          return null;
+        }
+        
+        // 获取工作流
+        const buildWorkflowPayloadFn = window.buildWorkflowPayload;
+        if (!buildWorkflowPayloadFn || typeof buildWorkflowPayloadFn !== 'function') {
+          throw new Error("buildWorkflowPayload 函数不可用");
+        }
+        
+        const workflow = buildWorkflowPayloadFn();
+        console.log('[任务] 工作流已构建，步骤数:', workflow?.steps?.length || 0);
+        
+        // 调用原始 API 函数
+        if (!startJobApi || typeof startJobApi !== 'function') {
+          throw new Error("startJob API 函数不可用");
+        }
+        
+        console.log('[任务] 调用 API 创建任务...');
+        const result = await startJobApi(inputDir1, inputDir2, inputDir3, inputDir4, workflow);
+        
+        // 更新任务 ID（如果返回了 job_id）
+        if (result && result.job_id) {
+          console.log('[任务] 任务创建成功，ID:', result.job_id);
+          
+          const jobIdEl = document.getElementById("job-id-runs");
+          if (jobIdEl) {
+            jobIdEl.value = result.job_id;
+          }
+          
+          // 自动启动任务状态轮询
+          if (window.startJobPolling && typeof window.startJobPolling === 'function') {
+            setTimeout(() => {
+              window.startJobPolling(result.job_id);
+              console.log('[任务] 已自动启动任务状态轮询:', result.job_id);
+            }, 1000);
+          }
+          
+          // 触发刷新（如果有刷新函数）
+          if (refreshJobApi && typeof refreshJobApi === 'function') {
+            // 延迟刷新，给后端一些时间初始化
+            setTimeout(() => {
+              refreshJobApi(result.job_id);
+            }, 1000);
+          }
+        } else {
+          console.warn('[任务] 任务创建成功但未返回 job_id');
+        }
+        
+        return result;
+      } catch (e) {
+        const errorMsg = e.message || String(e);
+        console.error("[任务] 启动任务失败:", errorMsg, e);
+        
+        // 确保错误消息显示给用户
+        if (window.showToast && typeof window.showToast === 'function') {
+          // showToast 已经在 api.js 中调用了，这里不需要重复调用
+          // 但如果 api.js 中的调用失败，这里作为备用
+          if (!errorMsg.includes("图一目录不能为空")) {
+            window.showToast(`启动任务失败：${errorMsg}`, "error", 5000);
+          }
+        } else {
+          // 如果没有 toast，使用 alert
+          alert(`启动任务失败：${errorMsg}`);
+        }
+        
+        throw e;
+      }
+    };
+    
+    window.refreshJob = async function() {
+      try {
+        const jobIdEl = document.getElementById("job-id-runs");
+        const jobId = jobIdEl ? jobIdEl.value.trim() : '';
+        
+        if (!jobId) {
+          if (window.showToast) {
+            window.showToast("没有正在运行的任务", "warning");
+          }
+          return null;
+        }
+        
+        if (!refreshJobApi || typeof refreshJobApi !== 'function') {
+          throw new Error("refreshJob API 函数不可用");
+        }
+        
+        return await refreshJobApi(jobId);
+      } catch (e) {
+        console.error("刷新任务失败:", e);
+        throw e;
+      }
+    };
+    
+    window.cancelJob = async function() {
+      try {
+        const jobIdEl = document.getElementById("job-id-runs");
+        const jobId = jobIdEl ? jobIdEl.value.trim() : '';
+        
+        if (!jobId) {
+          if (window.showToast) {
+            window.showToast("没有正在运行的任务", "warning");
+          }
+          return null;
+        }
+        
+        if (!cancelJobApi || typeof cancelJobApi !== 'function') {
+          throw new Error("cancelJob API 函数不可用");
+        }
+        
+        return await cancelJobApi(jobId);
+      } catch (e) {
+        console.error("取消任务失败:", e);
+        throw e;
+      }
+    };
+    
+    // 定义全局 cfgEls 变量（将在 initApp 中初始化）
+    let cfgEls = null;
+    
+    // 在模块脚本内部定义 initViewSwitching 和 bindBasicEvents，确保它们在 initApp 调用时可用
+    // 这些函数将在模块脚本外部重新定义，但先在这里定义以确保可用性
+    
+    // 辅助函数：安全获取 cfgEls
+    function getCfgEls() {
+      if (!cfgEls && window.cfgEls) {
+        cfgEls = window.cfgEls;
+      }
+      if (!cfgEls) {
+        throw new Error("cfgEls 未初始化，请先初始化应用");
+      }
+      return cfgEls;
+    }
+    
+    // 将 getCfgEls 挂载到 window，供模块脚本外部的函数使用
+    window.getCfgEls = getCfgEls;
+    
+    // ========== 在模块脚本内部定义 initViewSwitching 和 bindBasicEvents ==========
+    // 这些函数需要访问模块脚本内部的函数（如 getCfgEls），所以必须在模块脚本内部定义
+    
+    // 初始化视图切换
+    window.initViewSwitching = function initViewSwitching() {
+      // 确保所有nav-tab按钮在nav中，不在main中
+      const nav = document.querySelector('.nav-tabs');
+      const main = document.querySelector('main');
+      if (nav && main) {
+        const tabsInMain = main.querySelectorAll('.nav-tab');
+        tabsInMain.forEach(tab => {
+          if (!nav.contains(tab)) {
+            nav.appendChild(tab);
+          }
+        });
+      }
+      
+      // 使用捕获阶段绑定，确保在模态框事件之前处理，阻止事件冒泡到模态框
+      document.querySelectorAll('.nav-tab').forEach(tab => {
+        tab.addEventListener('click', (e) => {
+          try {
+            // 阻止事件冒泡，避免触发模态框的点击外部关闭逻辑
+            e.stopPropagation();
+            e.stopImmediatePropagation();
+            const viewName = tab.dataset.view;
+            if (viewName) {
+              if (window.switchView && typeof window.switchView === 'function') {
+                window.switchView(viewName);
+                // localStorage 保存已在 ui.js 的 switchView 函数中处理
+              } else {
+                console.error("switchView 函数未找到，尝试直接切换视图");
+                // 降级方案：直接操作 DOM
+                document.querySelectorAll('.view-container').forEach(view => {
+                  view.classList.remove('active');
+                  view.style.display = 'none';
+                });
+                document.querySelectorAll('.nav-tab').forEach(t => {
+                  t.classList.remove('active');
+                });
+                const targetView = document.querySelector(`.view-container[data-view="${viewName}"]`);
+                const targetTab = document.querySelector(`.nav-tab[data-view="${viewName}"]`);
+                if (targetView) {
+                  targetView.classList.add('active');
+                  targetView.style.display = '';
+                }
+                if (targetTab) {
+                  targetTab.classList.add('active');
+                }
+              }
+            }
+            // 注意：视图切换时不应该关闭模态框，模态框应该保持打开状态
+          } catch (err) {
+            console.error("切换视图时出错:", err);
+            alert(`切换视图失败: ${err.message}`);
+          }
+        }, true); // 使用捕获阶段，确保在模态框事件之前处理
+      });
+
+      // 恢复上次的视图，如果没有则默认显示工作流视图
+      const savedView = localStorage.getItem('currentView');
+      if (savedView && window.switchView) {
+        window.switchView(savedView);
+      } else if (window.switchView) {
+        // 确保默认显示工作流视图
+        window.switchView('workflow');
+      }
+    };
+    
+    // 事件绑定 - 基础按钮（在 DOMContentLoaded 后执行，确保 DOM 已加载）
+    window.bindBasicEvents = function bindBasicEvents() {
+      try {
+        const btnLoadConfig = document.getElementById("btn-load-config");
+        const btnSaveConfig = document.getElementById("btn-save-config");
+        const btnAddStep = document.getElementById("btn-add-step");
+        // 任务控制按钮（Runs 视图）
+        const btnStartJob = document.getElementById("btn-start-job-runs");
+        const btnRefreshJob = document.getElementById("btn-refresh-job-runs");
+        const btnCancelJob = document.getElementById("btn-cancel-job-runs");
+
+        if (btnLoadConfig) {
+          btnLoadConfig.onclick = () => {
+            try {
+              if (loadConfig && typeof loadConfig === 'function') {
+                loadConfig();
+              } else {
+                console.error("loadConfig 函数未找到");
+                alert("加载配置功能未初始化");
+              }
+            } catch (e) {
+              console.error("加载配置时出错:", e);
+              alert(`加载配置失败: ${e.message}`);
+            }
+          };
+        }
+        if (btnSaveConfig) {
+          btnSaveConfig.onclick = () => {
+            try {
+              // saveConfig 函数需要从 api.js 模块获取
+              const saveConfigFn = window.saveConfig || (typeof saveConfig !== 'undefined' ? saveConfig : null);
+              if (saveConfigFn && typeof saveConfigFn === 'function') {
+                saveConfigFn();
+              } else {
+                console.error("saveConfig 函数未找到");
+                alert("保存配置功能未初始化");
+              }
+            } catch (e) {
+              console.error("保存配置时出错:", e);
+              alert(`保存配置失败: ${e.message}`);
+            }
+          };
+        }
+        
+        // 获取模型列表按钮
+        const cfgEls = getCfgEls();
+        const fetchModelButtons = [
+          { id: 'btn-fetch-models-qwen', provider: 'qwen', modelEl: cfgEls.qwenModel, modelElSettings: document.getElementById('cfg-qwen-model-settings') },
+          { id: 'btn-fetch-models-ohmygpt', provider: 'ohmygpt', modelEl: cfgEls.ohmygptModel, modelElSettings: document.getElementById('cfg-ohmygpt-model-settings') },
+          { id: 'btn-fetch-models-modelscope', provider: 'modelscope', modelEl: cfgEls.modelscopeModel, modelElSettings: document.getElementById('cfg-modelscope-model-settings') },
+          { id: 'btn-fetch-models-siliconflow', provider: 'siliconflow', modelEl: cfgEls.siliconflowModel, modelElSettings: document.getElementById('cfg-siliconflow-model-settings') },
+          { id: 'btn-fetch-models-cherryin', provider: 'cherryin', modelEl: cfgEls.cherryinModel, modelElSettings: document.getElementById('cfg-cherryin-model-settings') }
+        ];
+        
+        fetchModelButtons.forEach(({ id, provider, modelEl, modelElSettings }) => {
+          const btn = document.getElementById(id);
+          const btnSettings = document.getElementById(id + '-settings');
+          if (btn) {
+            btn.onclick = (e) => {
+              // fetchModels 函数需要从 api.js 模块获取
+              const fetchModelsFn = window.fetchModels || (typeof fetchModels !== 'undefined' ? fetchModels : null);
+              if (fetchModelsFn && typeof fetchModelsFn === 'function') {
+                fetchModelsFn(provider, modelEl, modelElSettings, e);
+              } else {
+                console.error("fetchModels 函数未找到");
+              }
+            };
+          }
+          if (btnSettings) {
+            btnSettings.onclick = (e) => {
+              const fetchModelsFn = window.fetchModels || (typeof fetchModels !== 'undefined' ? fetchModels : null);
+              if (fetchModelsFn && typeof fetchModelsFn === 'function') {
+                fetchModelsFn(provider, modelEl, modelElSettings, e);
+              } else {
+                console.error("fetchModels 函数未找到");
+              }
+            };
+          }
+        });
+        
+        // 初始化步骤类型选择器
+        const stepTypeSelector = document.getElementById("step-type-selector");
+        const stepTypeDescription = document.getElementById("step-type-description");
+        const stepTypeDescriptionText = document.getElementById("step-type-description-text");
+        
+        if (stepTypeSelector) {
+          // 清空现有选项（避免重复初始化导致重复）
+          const defaultOption = stepTypeSelector.querySelector('option[value=""]');
+          stepTypeSelector.innerHTML = '';
+          if (defaultOption) {
+            stepTypeSelector.appendChild(defaultOption.cloneNode(true));
+          }
+          
+          // 填充步骤类型选项
+          // 确保 getStepTypeOptions 已挂载，如果未挂载则重试
+          const fillStepTypeOptions = () => {
+            const getStepTypeOptionsFn = window.getStepTypeOptions;
+            if (typeof getStepTypeOptionsFn === 'function') {
+              try {
+                const options = getStepTypeOptionsFn();
+                if (Array.isArray(options) && options.length > 0) {
+                  // 清空现有选项（保留默认选项）
+                  const defaultOption = stepTypeSelector.querySelector('option[value=""]');
+                  stepTypeSelector.innerHTML = '';
+                  if (defaultOption) {
+                    stepTypeSelector.appendChild(defaultOption.cloneNode(true));
+                  }
+                  
+                  // 添加所有选项
+                  options.forEach(option => {
+                    const opt = document.createElement("option");
+                    opt.value = option.value;
+                    opt.textContent = option.text;
+                    stepTypeSelector.appendChild(opt);
+                  });
+                  console.log(`✅ 已填充 ${options.length} 个步骤类型选项`);
+                } else {
+                  console.warn("⚠️ getStepTypeOptions 返回空数组");
+                }
+              } catch (e) {
+                console.error("填充步骤类型选项失败:", e);
+                // 如果失败，至少保留默认选项
+              }
+            } else {
+              console.warn("⚠️ getStepTypeOptions 函数未找到，将在 500ms 后重试");
+              // 如果函数未挂载，延迟重试（最多重试3次）
+              if (!fillStepTypeOptions.retryCount) fillStepTypeOptions.retryCount = 0;
+              if (fillStepTypeOptions.retryCount < 3) {
+                fillStepTypeOptions.retryCount++;
+                setTimeout(fillStepTypeOptions, 500);
+              } else {
+                console.error("❌ getStepTypeOptions 函数加载失败，已重试3次");
+              }
+            }
+          };
+          // 立即尝试填充，如果失败则重试
+          fillStepTypeOptions();
+          
+          // 监听选择变化，显示描述
+          stepTypeSelector.onchange = () => {
+            const selectedType = stepTypeSelector.value;
+            // 确保 STEP_TYPES 已挂载
+            const stepTypes = window.STEP_TYPES || STEP_TYPES;
+            if (selectedType && stepTypes && stepTypes[selectedType]) {
+              const config = stepTypes[selectedType];
+              stepTypeDescription.style.display = "block";
+              stepTypeDescriptionText.innerHTML = `<strong>${config.name}</strong><br>${config.description}`;
+            } else {
+              stepTypeDescription.style.display = "none";
+            }
+          };
+        }
+        
+        if (btnAddStep) {
+          btnAddStep.onclick = () => {
+            try {
+              const selectedType = stepTypeSelector ? stepTypeSelector.value : "";
+              if (!selectedType) {
+                alert("请先选择步骤类型！");
+                return;
+              }
+              // 使用 window.addStep 确保函数已挂载
+              if (window.addStep && typeof window.addStep === 'function') {
+                window.addStep(selectedType);
+              } else if (addStep && typeof addStep === 'function') {
+                addStep(selectedType);
+              } else {
+                console.error("addStep 函数未找到");
+                alert("添加步骤功能未初始化，请刷新页面重试");
+                return;
+              }
+              // 重置选择器
+              if (stepTypeSelector) {
+                stepTypeSelector.value = "";
+                if (stepTypeDescription) stepTypeDescription.style.display = "none";
+              }
+            } catch (e) {
+              console.error("添加步骤时出错:", e);
+              alert(`添加步骤失败: ${e.message}`);
+            }
+          };
+        }
+        
+        // 任务控制按钮（通过 window 访问外部定义的变量和函数）
+        if (btnStartJob) {
+          btnStartJob.onclick = async () => {
+            try {
+              const startJobFn = window.startJob;
+              if (startJobFn && typeof startJobFn === 'function') {
+                await startJobFn();
+              } else {
+                console.error("startJob 函数未找到");
+                alert("启动任务功能未初始化");
+              }
+            } catch (e) {
+              console.error("启动任务时出错:", e);
+              alert(`启动任务失败: ${e.message}`);
+            }
+          };
+        }
+        if (btnRefreshJob) {
+          btnRefreshJob.onclick = async () => {
+            try {
+              const refreshJobFn = window.refreshJob;
+              if (refreshJobFn && typeof refreshJobFn === 'function') {
+                await refreshJobFn();
+              } else {
+                console.error("refreshJob 函数未找到");
+              }
+            } catch (e) {
+              console.error("刷新任务时出错:", e);
+            }
+          };
+        }
+        if (btnCancelJob) {
+          btnCancelJob.onclick = async () => {
+            try {
+              const cancelJobFn = window.cancelJob;
+              if (cancelJobFn && typeof cancelJobFn === 'function') {
+                await cancelJobFn();
+              } else {
+                console.error("cancelJob 函数未找到");
+                alert("取消任务功能未初始化");
+              }
+            } catch (e) {
+              console.error("取消任务时出错:", e);
+              alert(`取消任务失败: ${e.message}`);
+            }
+          };
+        }
+
+        // Runs 视图的任务控制按钮
+        const btnStartJobRuns = document.getElementById("btn-start-job-runs");
+        const btnRefreshJobRuns = document.getElementById("btn-refresh-job-runs");
+        const btnCancelJobRuns = document.getElementById("btn-cancel-job-runs");
+        const btnJobDetailRuns = document.getElementById("btn-job-detail-runs");
+        const btnViewResultsRuns = document.getElementById("btn-view-results-runs");
+        
+        if (btnStartJobRuns) {
+          btnStartJobRuns.onclick = async () => {
+            try {
+              console.log('[任务] 开始任务按钮被点击');
+              const startJobFn = window.startJob;
+              if (startJobFn && typeof startJobFn === 'function') {
+                await startJobFn();
+              } else {
+                const errorMsg = "启动任务功能未初始化，请刷新页面重试";
+                console.error("[任务]", errorMsg);
+                if (window.showToast && typeof window.showToast === 'function') {
+                  window.showToast(errorMsg, "error", 5000);
+                } else {
+                  alert(errorMsg);
+                }
+              }
+            } catch (e) {
+              const errorMsg = e.message || String(e);
+              console.error("[任务] 启动任务时出错:", errorMsg, e);
+              // 错误消息已经在 startJob 函数中处理了，这里只记录日志
+              // 但如果 startJob 没有显示错误，这里作为备用
+              if (!errorMsg.includes("图一目录不能为空") && !errorMsg.includes("请先配置")) {
+                if (window.showToast && typeof window.showToast === 'function') {
+                  window.showToast(`启动任务失败: ${errorMsg}`, "error", 5000);
+                } else {
+                  alert(`启动任务失败: ${errorMsg}`);
+                }
+              }
+            }
+          };
+        }
+        if (btnRefreshJobRuns) {
+          btnRefreshJobRuns.onclick = async () => {
+            try {
+              const refreshJobFn = window.refreshJob;
+              if (refreshJobFn && typeof refreshJobFn === 'function') {
+                await refreshJobFn();
+              } else {
+                console.error("refreshJob 函数未找到");
+              }
+            } catch (e) {
+              console.error("刷新任务时出错:", e);
+            }
+          };
+        }
+        if (btnCancelJobRuns) {
+          btnCancelJobRuns.onclick = async () => {
+            try {
+              const cancelJobFn = window.cancelJob;
+              if (cancelJobFn && typeof cancelJobFn === 'function') {
+                await cancelJobFn();
+              } else {
+                console.error("cancelJob 函数未找到");
+                alert("取消任务功能未初始化");
+              }
+            } catch (e) {
+              console.error("取消任务时出错:", e);
+              alert(`取消任务失败: ${e.message}`);
+            }
+          };
+        }
+        if (btnJobDetailRuns) {
+          btnJobDetailRuns.onclick = () => {
+            try {
+              const openJobDetailFn = window.openJobDetail || (typeof openJobDetail !== 'undefined' ? openJobDetail : null);
+              if (openJobDetailFn && typeof openJobDetailFn === 'function') {
+                openJobDetailFn();
+              } else {
+                console.error("openJobDetail 函数未找到");
+                alert("查看任务详情功能未初始化");
+              }
+            } catch (e) {
+              console.error("打开任务详情时出错:", e);
+              alert(`打开任务详情失败: ${e.message}`);
+            }
+          };
+        }
+        if (btnViewResultsRuns) {
+          btnViewResultsRuns.onclick = () => {
+            try {
+              const openResultsFn = window.openResultsBrowser || (typeof openResultsBrowser !== 'undefined' ? openResultsBrowser : null);
+              if (openResultsFn && typeof openResultsFn === 'function') {
+                openResultsFn();
+              } else {
+                console.error("openResultsBrowser 函数未找到");
+                alert("查看任务结果功能未初始化");
+              }
+            } catch (e) {
+              console.error("打开任务结果时出错:", e);
+              alert(`打开任务结果失败: ${e.message}`);
+            }
+          };
+        }
+
+        // Settings 视图的配置按钮
+        const btnLoadConfigSettings = document.getElementById("btn-load-config-settings");
+        const btnSaveConfigSettings = document.getElementById("btn-save-config-settings");
+        const btnOpenApiModalSettings = document.getElementById("btn-open-api-modal-settings");
+        
+        if (btnLoadConfigSettings) {
+          btnLoadConfigSettings.onclick = () => {
+            loadConfig();
+            // 同步到 Settings 视图（syncConfigInputs 函数在模块脚本外部定义，通过 window 访问）
+            const syncConfigInputsFn = window.syncConfigInputs || (typeof syncConfigInputs !== 'undefined' ? syncConfigInputs : null);
+            if (syncConfigInputsFn && typeof syncConfigInputsFn === 'function') {
+              syncConfigInputsFn(false, true);
+            }
+          };
+        }
+        if (btnSaveConfigSettings) {
+          btnSaveConfigSettings.onclick = () => {
+            // 从 Settings 视图同步到模态框
+            const syncConfigInputsFn = window.syncConfigInputs || (typeof syncConfigInputs !== 'undefined' ? syncConfigInputs : null);
+            if (syncConfigInputsFn && typeof syncConfigInputsFn === 'function') {
+              syncConfigInputsFn(true, false);
+            }
+            const saveConfigFn = window.saveConfig || (typeof saveConfig !== 'undefined' ? saveConfig : null);
+            if (saveConfigFn && typeof saveConfigFn === 'function') {
+              saveConfigFn();
+            }
+          };
+        }
+        if (btnOpenApiModalSettings) {
+          btnOpenApiModalSettings.onclick = () => {
+            // 从 Settings 视图同步到模态框
+            const syncConfigInputsFn = window.syncConfigInputs || (typeof syncConfigInputs !== 'undefined' ? syncConfigInputs : null);
+            if (syncConfigInputsFn && typeof syncConfigInputsFn === 'function') {
+              syncConfigInputsFn(true, false);
+            }
+            const openFn = window.openModal;
+            if (typeof openFn === 'function') {
+              openFn("modal-api-overlay");
+            } else {
+              console.error('[Modal] openModal 函数不可用');
+            }
+          };
+        }
+
+        // 工作流视图的目录配置按钮
+        const btnOpenDirsModal = document.getElementById("btn-open-dirs-modal");
+        if (btnOpenDirsModal) {
+          btnOpenDirsModal.onclick = () => {
+            const openFn = window.openModal;
+            if (typeof openFn === 'function') {
+              openFn("modal-dirs-overlay");
+            } else {
+              console.error('[Modal] openModal 函数不可用');
+            }
+            // 同步目录输入（通过 window 访问外部定义的变量）
+            const inputDir1El = window.inputDir1El || document.getElementById("input-dir-1");
+            const inputDir2El = window.inputDir2El || document.getElementById("input-dir-2");
+            const inputDir3El = window.inputDir3El || document.getElementById("input-dir-3");
+            const dir1El = document.getElementById("input-dir-1");
+            const dir2El = document.getElementById("input-dir-2");
+            const dir3El = document.getElementById("input-dir-3");
+            if (dir1El && inputDir1El) dir1El.value = inputDir1El.value;
+            if (dir2El && inputDir2El) dir2El.value = inputDir2El.value;
+            if (dir3El && inputDir3El) dir3El.value = inputDir3El.value;
+            
+            // 注意：保存和清空按钮的事件绑定已在 bindAllEvents 中处理，无需重复绑定
+          };
+        }
+
+        // Runs 视图的目录配置按钮
+        const btnOpenDirsModalRuns = document.getElementById("btn-open-dirs-modal-runs");
+        if (btnOpenDirsModalRuns) {
+          btnOpenDirsModalRuns.onclick = () => {
+            const openFn = window.openModal;
+            if (typeof openFn === 'function') {
+              openFn("modal-dirs-overlay");
+            } else {
+              console.error('[Modal] openModal 函数不可用');
+            }
+            // 同步目录输入（通过 window 访问外部定义的变量）
+            const inputDir1El = window.inputDir1El || document.getElementById("input-dir-1");
+            const inputDir2El = window.inputDir2El || document.getElementById("input-dir-2");
+            const inputDir3El = window.inputDir3El || document.getElementById("input-dir-3");
+            const dir1El = document.getElementById("input-dir-1");
+            const dir2El = document.getElementById("input-dir-2");
+            const dir3El = document.getElementById("input-dir-3");
+            if (dir1El && inputDir1El) dir1El.value = inputDir1El.value;
+            if (dir2El && inputDir2El) dir2El.value = inputDir2El.value;
+            if (dir3El && inputDir3El) dir3El.value = inputDir3El.value;
+            
+            // 注意：保存和清空按钮的事件绑定已在 bindAllEvents 中处理，无需重复绑定
+          };
+        }
+      } catch (e) {
+        console.error("绑定基础事件失败:", e);
+      }
+    };
+    
+    // ========== 绑定所有按钮事件函数 ==========
+    // 在模块脚本内部定义，确保在 initApp 调用时可用
+    window.bindAllEvents = function bindAllEvents() {
+      // 绑定所有模态框关闭按钮（确保在模块加载完成后执行）
+      const btnCloseApiModal = document.getElementById("btn-close-api-modal");
+      if (btnCloseApiModal) {
+        btnCloseApiModal.onclick = () => {
+          const closeFn = window.closeModal;
+          if (typeof closeFn === 'function') {
+            closeFn("modal-api-overlay");
+          } else {
+            console.error('[Modal] closeModal 函数不可用');
+          }
+        };
+      }
+
+      const btnCloseDirsModal = document.getElementById("btn-close-dirs-modal");
+      if (btnCloseDirsModal) {
+        btnCloseDirsModal.onclick = () => {
+          const closeFn = window.closeModal;
+          if (typeof closeFn === 'function') {
+            closeFn("modal-dirs-overlay");
+          } else {
+            console.error('[Modal] closeModal 函数不可用');
+          }
+        };
+      }
+
+      const btnCloseJobDetail = document.getElementById("btn-close-job-detail");
+      if (btnCloseJobDetail) {
+        btnCloseJobDetail.onclick = () => {
+          const closeFn = window.closeModal;
+          if (typeof closeFn === 'function') {
+            closeFn("modal-job-detail-overlay");
+          } else {
+            console.error('[Modal] closeModal 函数不可用');
+          }
+        };
+      }
+
+      const btnCloseSaveTemplate = document.getElementById("btn-close-save-template");
+      if (btnCloseSaveTemplate) {
+        btnCloseSaveTemplate.onclick = () => {
+          const closeFn = window.closeModal;
+          if (typeof closeFn === 'function') {
+            closeFn("modal-save-template-overlay");
+          } else {
+            console.error('[Modal] closeModal 函数不可用');
+          }
+        };
+      }
+
+      const btnCloseResults = document.getElementById("btn-close-results");
+      if (btnCloseResults) {
+        btnCloseResults.onclick = () => {
+          const closeFn = window.closeModal;
+          if (typeof closeFn === 'function') {
+            closeFn("modal-results-overlay");
+          } else {
+            console.error('[Modal] closeModal 函数不可用');
+          }
+        };
+      }
+
+      const btnCloseStepAdvanced = document.getElementById("btn-close-step-advanced");
+      if (btnCloseStepAdvanced) {
+        btnCloseStepAdvanced.onclick = () => {
+          const closeFn = window.closeModal;
+          if (typeof closeFn === 'function') {
+            closeFn("modal-step-advanced-overlay");
+          } else {
+            console.error('[Modal] closeModal 函数不可用');
+          }
+        };
+      }
+
+      const btnCloseHealthCheck = document.getElementById("btn-close-health-check");
+      if (btnCloseHealthCheck) {
+        btnCloseHealthCheck.onclick = () => {
+          const closeFn = window.closeModal;
+          if (typeof closeFn === 'function') {
+            closeFn("modal-health-check-overlay");
+          } else {
+            console.error('[Modal] closeModal 函数不可用');
+          }
+        };
+      }
+
+      // 目录配置模态框的保存和清空按钮
+      const btnSaveDirs = document.getElementById("btn-save-dirs");
+      if (btnSaveDirs) {
+        btnSaveDirs.onclick = () => {
+          console.log('[目录配置] 点击保存并关闭按钮');
+          // 从模态框中的输入框读取值
+          const dir1El = document.getElementById("input-dir-1");
+          const dir2El = document.getElementById("input-dir-2");
+          const dir3El = document.getElementById("input-dir-3");
+          const dir4El = document.getElementById("input-dir-4");
+          
+          // 通过 window 访问工作流视图中的输入框
+          const inputDir1El = window.inputDir1El || document.getElementById("input-dir-1");
+          const inputDir2El = window.inputDir2El || document.getElementById("input-dir-2");
+          const inputDir3El = window.inputDir3El || document.getElementById("input-dir-3");
+          const inputDir4El = window.inputDir4El || document.getElementById("input-dir-4");
+          
+          // 同步值到工作流视图中的输入框
+          if (dir1El && inputDir1El) {
+            inputDir1El.value = dir1El.value.trim();
+            console.log('[目录配置] 同步图一目录:', inputDir1El.value);
+          }
+          if (dir2El && inputDir2El) {
+            inputDir2El.value = dir2El.value.trim();
+            console.log('[目录配置] 同步图二目录:', inputDir2El.value);
+          }
+          if (dir3El && inputDir3El) {
+            inputDir3El.value = dir3El.value.trim();
+            console.log('[目录配置] 同步图三目录:', inputDir3El.value);
+          }
+          if (dir4El && inputDir4El) {
+            inputDir4El.value = dir4El.value.trim();
+            console.log('[目录配置] 同步图四目录:', inputDir4El.value);
+          }
+          
+          // 更新目录预览
+          const syncDirPreviewsFn = window.syncDirPreviews;
+          if (syncDirPreviewsFn && typeof syncDirPreviewsFn === 'function') {
+            syncDirPreviewsFn();
+            console.log('[目录配置] 已更新目录预览');
+          } else {
+            console.error('[目录配置] syncDirPreviews 函数不可用');
+          }
+          
+          // 关闭模态框
+          const closeFn = window.closeModal;
+          if (typeof closeFn === 'function') {
+            closeFn("modal-dirs-overlay");
+            console.log('[目录配置] 已关闭模态框');
+          } else {
+            console.error('[目录配置] closeModal 函数不可用');
+          }
+          
+          // 显示成功提示
+          const showToastFn = window.showToast;
+          if (showToastFn && typeof showToastFn === 'function') {
+            showToastFn("目录配置已保存", "success");
+          } else {
+            console.error('[目录配置] showToast 函数不可用');
+          }
+        };
+      }
+
+      const btnClearDirs = document.getElementById("btn-clear-dirs");
+      if (btnClearDirs) {
+        btnClearDirs.onclick = () => {
+          console.log('[目录配置] 点击清空按钮');
+          const dir1El = document.getElementById("input-dir-1");
+          const dir2El = document.getElementById("input-dir-2");
+          const dir3El = document.getElementById("input-dir-3");
+          const dir4El = document.getElementById("input-dir-4");
+          if (dir1El) {
+            dir1El.value = "";
+            console.log('[目录配置] 已清空图一目录');
+          }
+          if (dir2El) {
+            dir2El.value = "";
+            console.log('[目录配置] 已清空图二目录');
+          }
+          if (dir3El) {
+            dir3El.value = "";
+            console.log('[目录配置] 已清空图三目录');
+          }
+          if (dir4El) {
+            dir4El.value = "";
+            console.log('[目录配置] 已清空图四目录');
+          }
+        };
+      }
+
+      // 壁纸相关按钮
+      const btnApplyWallpaper = document.getElementById('btn-apply-wallpaper');
+      if (btnApplyWallpaper) {
+        btnApplyWallpaper.onclick = () => {
+          const url = document.getElementById('wallpaper-url').value;
+          const opacity = document.getElementById('wallpaper-opacity').value;
+          if (url) {
+            localStorage.setItem('keroro-wallpaper', url);
+            localStorage.setItem('keroro-wallpaper-opacity', opacity);
+            document.documentElement.style.setProperty('--custom-wallpaper', `url(${url})`);
+            document.documentElement.style.setProperty('--wallpaper-opacity', opacity / 100);
+            showToast('壁纸已应用', 'success');
+          } else {
+            showToast('请输入壁纸 URL', 'error');
+          }
+        };
+      }
+      
+      const btnResetWallpaper = document.getElementById('btn-reset-wallpaper');
+      if (btnResetWallpaper) {
+        btnResetWallpaper.onclick = () => {
+          localStorage.removeItem('keroro-wallpaper');
+          localStorage.removeItem('keroro-wallpaper-opacity');
+          document.documentElement.style.removeProperty('--custom-wallpaper');
+          document.documentElement.style.setProperty('--wallpaper-opacity', '0.15');
+          document.getElementById('wallpaper-url').value = '';
+          document.getElementById('wallpaper-opacity').value = '15';
+          document.getElementById('opacity-value').textContent = '15%';
+          if (typeof updateWallpaperPreview === 'function') {
+            updateWallpaperPreview();
+          }
+          showToast('壁纸已重置', 'success');
+        };
+      }
+      
+      const btnCloseWallpaper = document.getElementById('btn-close-wallpaper');
+      if (btnCloseWallpaper) {
+        btnCloseWallpaper.onclick = () => {
+          document.getElementById('wallpaper-settings').classList.remove('show');
+        };
+      }
+      
+      const btnWallpaper = document.getElementById('btn-wallpaper');
+      if (btnWallpaper) {
+        btnWallpaper.onclick = () => {
+          try {
+            const wallpaperSettings = document.getElementById('wallpaper-settings');
+            if (wallpaperSettings) {
+              wallpaperSettings.classList.add('show');
+              if (typeof updateWallpaperPreview === 'function') {
+                updateWallpaperPreview();
+              }
+            } else {
+              console.error("壁纸设置元素未找到");
+              alert("壁纸设置功能未初始化");
+            }
+          } catch (e) {
+            console.error("打开壁纸设置时出错:", e);
+            alert(`打开壁纸设置失败: ${e.message}`);
+          }
+        };
+      }
+      
+      const btnUploadWallpaper = document.getElementById('btn-upload-wallpaper');
+      if (btnUploadWallpaper) {
+        btnUploadWallpaper.onclick = () => {
+          document.getElementById('wallpaper-upload').click();
+        };
+      }
+      
+      // RunningHub 模板按钮
+      const btnTemplateRh = document.getElementById("btn-template-rh");
+      if (btnTemplateRh) {
+        btnTemplateRh.onclick = () => {
+          workflow.steps = [];
+          
+          // Step 1: vision_prompt
+          const step1 = {
+            id: "step_vision_home",
+            type: "vision_prompt",
+            params: {
+              provider: "qwen",
+              preset: "outdoor",
+              ip_mode: "auto",
+              age_group: "big_kid",
+              gender: "female"
+            },
+            uses: []
+          };
+          workflow.steps.push(step1);
+          
+          // Step 2: runninghub_app
+          const step2 = {
+            id: "step_rh_tongmo",
+            type: "runninghub_app",
+            params: {
+              webapp_id: "1991820192487460866",
+              instance_type: "plus",
+              filename_suffix: "tongmo_home",
+              bindingsJson: JSON.stringify({
+                prompt: {
+                  nodeId: "194",
+                  fieldName: "text",
+                  fieldType: "STRING",
+                  from_step: step1.id,
+                  json_key: "*"
+                },
+                top_image: {
+                  nodeId: "Img_1",
+                  fieldName: "image",
+                  fieldType: "IMAGE"
+                },
+                bottom_image: {
+                  nodeId: "Img_2",
+                  fieldName: "image",
+                  fieldType: "IMAGE"
+                }
+              }, null, 2)
+            },
+            uses: [step1.id]
+          };
+          workflow.steps.push(step2);
+          
+          // Step 3: gemini_edit
+          const step3 = {
+            id: "step_gemini_edit",
+            type: "gemini_edit",
+            params: {
+              provider: "t8star",
+              mode: "multi",
+              preset: "home",
+              base_from: step2.id,
+              cloth_slot_top: "slot2",
+              cloth_slot_bottom: "slot3",
+              target_part: "full",
+              crop_mode: "none",
+              prompt_version: "legacy",
+              filename_suffix: "tryon",
+              prompt: ""
+            },
+            uses: [step2.id]
+          };
+          workflow.steps.push(step3);
+          
+          const wfMaxWorkersEl = document.getElementById("wf-max-workers");
+          if (wfMaxWorkersEl) wfMaxWorkersEl.value = 3;
+          if (window.renderSteps) window.renderSteps();
+          if (window.updateWorkflowPreview) window.updateWorkflowPreview();
+        };
+      }
+      
+      // Gemini 模板按钮
+      const btnTemplateGemini = document.getElementById("btn-template-gemini");
+      if (btnTemplateGemini) {
+        btnTemplateGemini.onclick = () => {
+          workflow.steps = [];
+          
+          // Step 1: vision_prompt
+          const step1 = {
+            id: "step_vision_home",
+            type: "vision_prompt",
+            params: {
+              provider: "qwen",
+              preset: "outdoor",
+              ip_mode: "auto",
+              age_group: "big_kid",
+              gender: "female"
+            },
+            uses: []
+          };
+          workflow.steps.push(step1);
+          
+          // Step 2: gemini_generate_model
+          const step2 = {
+            id: "step_gemini_model",
+            type: "gemini_generate_model",
+            params: {
+              provider: "t8star",
+              base_prompt_from: step1.id,
+              prompt_template: "",
+              cloth_slots: ["slot1", "slot2"],
+              extra_images_from_steps: [],
+              aspect_ratio: "3:4",
+              image_size: "2K",
+              temperature: 0.8,
+              top_p: 0.95,
+              max_tokens: 4096,
+              prompt_version: "auto",
+              filename_suffix: "gemini_model"
+            },
+            uses: [step1.id]
+          };
+          workflow.steps.push(step2);
+          
+          // Step 3: gemini_edit
+          const step3 = {
+            id: "step_gemini_edit",
+            type: "gemini_edit",
+            params: {
+              provider: "t8star",
+              mode: "multi",
+              preset: "home",
+              base_from: step2.id,
+              cloth_slot_top: "slot2",
+              cloth_slot_bottom: "slot3",
+              target_part: "full",
+              crop_mode: "none",
+              prompt_version: "legacy",
+              filename_suffix: "tryon",
+              prompt: ""
+            },
+            uses: [step2.id]
+          };
+          workflow.steps.push(step3);
+          
+          // Step 4: kling_image2video
+          const step4 = {
+            id: "step_kling_video",
+            type: "kling_image2video",
+            params: {
+              base_from: step3.id,
+              image_index: -1,
+              model_name: "kling-v1-6",
+              mode: "std",
+              prompt: "把小朋友和衣服做成轻微的动作，像是在开心走路或转身展示衣服，动作自然柔和，不要夸张摇晃。",
+              negative_prompt: "",
+              aspect_ratio: "16:9",
+              duration: 5,
+              cfg_scale: 0.5,
+              filename_suffix: "kling_video"
+            },
+            uses: [step3.id]
+          };
+          workflow.steps.push(step4);
+          
+          const wfMaxWorkersEl = document.getElementById("wf-max-workers");
+          if (wfMaxWorkersEl) wfMaxWorkersEl.value = 3;
+          if (window.renderSteps) window.renderSteps();
+          if (window.updateWorkflowPreview) window.updateWorkflowPreview();
+        };
+      }
+      
+      // 工作流模板保存和删除按钮
+      const btnSaveWorkflow = document.getElementById("btn-save-workflow");
+      if (btnSaveWorkflow) {
+        btnSaveWorkflow.onclick = () => {
+          if (window.saveCurrentWorkflow) {
+            window.saveCurrentWorkflow();
+          } else {
+            showToast("工作流模板模块未初始化", "error");
+          }
+        };
+      }
+      
+      const btnDeleteWorkflow = document.getElementById("btn-delete-workflow");
+      if (btnDeleteWorkflow) {
+        btnDeleteWorkflow.onclick = () => {
+          const templateSelect = document.getElementById("workflow-template-select");
+          if (!templateSelect || !templateSelect.value) {
+            showToast("请先选择一个模板", "warning");
+            return;
+          }
+          const selectedOption = templateSelect.options[templateSelect.selectedIndex];
+          const templateId = templateSelect.value;
+          const templateName = selectedOption.dataset.templateName || selectedOption.textContent;
+          if (window.deleteTemplate) {
+            window.deleteTemplate(templateId, templateName);
+          } else {
+            showToast("工作流模板模块未初始化", "error");
+          }
+        };
+      }
+      
+      // 角色头像点击事件
+      document.querySelectorAll(".squad-avatar").forEach(btn => {
+        // 移除旧的事件监听器
+        const newBtn = btn.cloneNode(true);
+        btn.parentNode.replaceChild(newBtn, btn);
+        // 绑定新的事件
+        newBtn.onclick = () => {
+          const character = newBtn.dataset.character;
+          const lines = {
+            keroro: "Kero！准备好作战了吗？",
+            tamama: "Tamama！我来帮你看工作流～",
+            giroro: "Giroro：随时准备战斗！",
+            kururu: "Kururu：数据分析中...嘿嘿嘿",
+            dororo: "Dororo：...（隐身中）"
+          };
+          if (window.showKeroroDialog) {
+            window.showKeroroDialog(character, lines[character] || "Kero！");
+          } else if (typeof showKeroroDialog === 'function') {
+            showKeroroDialog(character, lines[character] || "Kero！");
+          }
+        };
+      });
+      
+      // 角色对话关闭按钮
+      const keroroDialogClose = document.getElementById("keroro-dialog-close");
+      if (keroroDialogClose) {
+        keroroDialogClose.onclick = () => {
+          if (window.hideKeroroDialog) {
+            window.hideKeroroDialog();
+          } else if (typeof hideKeroroDialog === 'function') {
+            hideKeroroDialog();
+          }
+        };
+      }
+      
+      const keroroDialogOverlay = document.getElementById("keroro-dialog-overlay");
+      if (keroroDialogOverlay) {
+        keroroDialogOverlay.onclick = (e) => {
+          if (e.target.id === "keroro-dialog-overlay") {
+            if (window.hideKeroroDialog) {
+              window.hideKeroroDialog();
+            } else if (typeof hideKeroroDialog === 'function') {
+              hideKeroroDialog();
+            }
+          }
+        };
+      }
+    };
+    
+    // ========== 模块脚本内部函数定义完成 ==========
+    
+    // 获取模型列表函数（必须在 initApp 之前定义，以便在 bindBasicEvents 中使用）
+    window.fetchModels = async function fetchModels(provider, modelEl, modelElSettings, e) {
+      if (e) e.stopPropagation();
+      
+      const btn = e?.target;
+      const setButtonLoadingFn = window.setButtonLoading || (typeof setButtonLoading !== 'undefined' ? setButtonLoading : null);
+      if (btn && setButtonLoadingFn && typeof setButtonLoadingFn === 'function') {
+        setButtonLoadingFn(btn, true);
+      }
+      
+      try {
+        const getCfgElsFn = window.getCfgEls || (typeof getCfgEls !== 'undefined' ? getCfgEls : null);
+        if (!getCfgElsFn || typeof getCfgElsFn !== 'function') {
+          throw new Error("getCfgEls 函数未找到");
+        }
+        const cfgEls = getCfgElsFn();
+        
+        // 先临时保存当前配置，确保 API key 和 base_url 已保存到后端
+        // 这样后端才能使用正确的配置来获取模型列表
+        const activeView = document.querySelector('.view-container.active')?.dataset.view;
+        if (activeView === 'settings') {
+          const syncConfigInputsFn = window.syncConfigInputs || (typeof syncConfigInputs !== 'undefined' ? syncConfigInputs : null);
+          if (syncConfigInputsFn && typeof syncConfigInputsFn === 'function') {
+            syncConfigInputsFn(true, false);
+          }
+        }
+        
+        const body = {
+          qwen_api_key: cfgEls.qwenKey.value,
+          qwen_base_url: cfgEls.qwenBase.value,
+          qwen_model: cfgEls.qwenModel.value,
+          runninghub_api_key: cfgEls.rhKey.value,
+          runninghub_base_url: cfgEls.rhBase.value,
+          gemini_t8star_api_key: cfgEls.t8Key.value,
+          gemini_t8star_base_url: cfgEls.t8Base.value,
+          gemini_t8star_model: cfgEls.t8Model ? cfgEls.t8Model.value : "",
+          gemini_comfly_api_key: cfgEls.comKey.value,
+          gemini_comfly_base_url: cfgEls.comBase.value,
+          gemini_comfly_model: cfgEls.comModel ? cfgEls.comModel.value : "",
+          gemini_cherryin_api_key: cfgEls.cherryinGeminiKey ? cfgEls.cherryinGeminiKey.value : "",
+          gemini_cherryin_base_url: cfgEls.cherryinGeminiBase ? cfgEls.cherryinGeminiBase.value : "",
+          gemini_cherryin_model: cfgEls.cherryinGeminiModel ? cfgEls.cherryinGeminiModel.value : "",
+          gemini_aihubmix_api_key: cfgEls.aihubmixGeminiKey ? cfgEls.aihubmixGeminiKey.value : "",
+          gemini_aihubmix_base_url: cfgEls.aihubmixGeminiBase ? cfgEls.aihubmixGeminiBase.value : "",
+          gemini_aihubmix_model: cfgEls.aihubmixGeminiModel ? cfgEls.aihubmixGeminiModel.value : "",
+          gemini_grsai_api_key: cfgEls.grsaiGeminiKey ? cfgEls.grsaiGeminiKey.value : "",
+          gemini_grsai_base_url: cfgEls.grsaiGeminiBase ? cfgEls.grsaiGeminiBase.value : "",
+          gemini_grsai_model: cfgEls.grsaiGeminiModel ? cfgEls.grsaiGeminiModel.value : "",
+          kling_access_key: cfgEls.klingAccessKey.value,
+          kling_secret_key: cfgEls.klingSecretKey.value,
+          kling_api_key: cfgEls.klingKey.value,
+          // 确保 kling_base_url 是基础 URL，不包含路径
+          kling_base_url: (() => {
+            let url = cfgEls.klingBase.value.trim();
+            // 如果包含 /v1/videos/image2video 等路径，自动移除
+            if (url && url.includes('/v1/videos/image2video')) {
+              url = url.replace('/v1/videos/image2video', '').replace(/\/+$/, '');
+            }
+            return url;
+          })(),
+          kling_default_model: cfgEls.klingModel.value,
+          ohmygpt_api_key: cfgEls.ohmygptKey.value,
+          ohmygpt_base_url: cfgEls.ohmygptBase.value,
+          ohmygpt_model: cfgEls.ohmygptModel ? cfgEls.ohmygptModel.value : "",
+          modelscope_api_key: cfgEls.modelscopeKey.value,
+          modelscope_base_url: cfgEls.modelscopeBase.value,
+          modelscope_model: cfgEls.modelscopeModel.value,
+          siliconflow_api_key: cfgEls.siliconflowKey.value,
+          siliconflow_base_url: cfgEls.siliconflowBase.value,
+          siliconflow_model: cfgEls.siliconflowModel.value,
+        cherryin_api_key: cfgEls.cherryinKey.value,
+        cherryin_base_url: cfgEls.cherryinBase.value,
+        cherryin_model: cfgEls.cherryinModel.value,
+        public_base_url: cfgEls.publicBaseUrl ? cfgEls.publicBaseUrl.value : "",
+        max_workers: Number(cfgEls.maxWorkers.value || 4)
+        };
+        
+        // 获取 API 基础地址
+        const getApiBaseFn = window.getApiBase || (typeof getApiBase !== 'undefined' ? getApiBase : null);
+        const apiBase = getApiBaseFn && typeof getApiBaseFn === 'function' 
+          ? getApiBaseFn() 
+          : (window.location.protocol + "//" + window.location.host);
+        
+        // 临时保存配置（静默保存，不显示提示）
+        try {
+          await fetch(`${apiBase}/api/config`, {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify(body)
+          });
+        } catch (saveErr) {
+          console.warn("临时保存配置失败，继续尝试获取模型列表:", saveErr);
+        }
+        
+        // 调用获取模型列表接口（使用 GET /api/models）
+        const params = provider ? `?provider=${encodeURIComponent(provider)}` : '';
+        const res = await fetch(`${apiBase}/api/models${params}`, {
+          method: "GET",
+          headers: { "Content-Type": "application/json" }
+        });
+        
+        if (!res.ok) {
+          const errorText = await res.text();
+          throw new Error(`HTTP ${res.status}: ${errorText || '未知错误'}`);
+        }
+        
+        const data = await res.json();
+        // 后端直接返回模型列表数组，不是 { models: [...] }
+        const models = Array.isArray(data) ? data : (data.models || []);
+        
+        if (models.length === 0) {
+          const showToastFn = window.showToast || (typeof showToast !== 'undefined' ? showToast : null);
+          if (showToastFn && typeof showToastFn === 'function') {
+            showToastFn("未获取到模型列表", "warning");
+          }
+          return;
+        }
+        
+        // 显示模型选择对话框
+        const modelList = models.map(m => `• ${m}`).join('\n');
+        const selected = prompt(`请选择模型（共 ${models.length} 个）：\n\n${modelList}\n\n请输入模型名称：`, modelEl?.value || "");
+        
+        if (selected !== null && selected.trim()) {
+          const modelName = selected.trim();
+          if (modelEl) modelEl.value = modelName;
+          if (modelElSettings) modelElSettings.value = modelName;
+          const showToastFn = window.showToast || (typeof showToast !== 'undefined' ? showToast : null);
+          if (showToastFn && typeof showToastFn === 'function') {
+            showToastFn(`已选择模型：${modelName}`, "success");
+          }
+        }
+      } catch (e) {
+        console.error("获取模型列表失败:", e);
+        const errorMsg = e.message || String(e);
+        const showToastFn = window.showToast || (typeof showToast !== 'undefined' ? showToast : null);
+        if (showToastFn && typeof showToastFn === 'function') {
+          if (errorMsg.includes("Failed to fetch") || errorMsg.includes("NetworkError")) {
+            showToastFn("无法连接到后端服务器，请检查后端服务是否已启动", "error", 5000);
+          } else if (errorMsg.includes("API key 未配置")) {
+            showToastFn("请先配置 API 密钥", "warning", 3000);
+          } else {
+            showToastFn(`获取模型列表失败：${errorMsg}`, "error", 5000);
+          }
+        }
+      } finally {
+        if (btn && setButtonLoadingFn && typeof setButtonLoadingFn === 'function') {
+          setButtonLoadingFn(btn, false);
+        }
+      }
+    };
+    
+    // 定义初始化应用函数（必须在调用之前定义）
+    window.initApp = async function() {
+      try {
+        console.log("🚀 开始初始化 Keroro 作战室...");
+        
+        // 获取 DOM 元素（在 DOM 加载完成后获取）
+        const stepsContainer = document.getElementById("steps-container");
+        const wfPreviewEl = document.getElementById("wf-json-preview");
+        const wfMaxWorkersEl = document.getElementById("wf-max-workers");
+        
+        if (!stepsContainer) {
+          throw new Error("找不到 steps-container 元素");
+        }
+        if (!wfPreviewEl) {
+          throw new Error("找不到 wf-json-preview 元素");
+        }
+        if (!wfMaxWorkersEl) {
+          throw new Error("找不到 wf-max-workers 元素");
+        }
+        
+        // 初始化 cfgEls（必须在 DOM 加载完成后）
+        cfgEls = {
+          qwenKey: document.getElementById("cfg-qwen-key"),
+          qwenBase: document.getElementById("cfg-qwen-base"),
+          qwenModel: document.getElementById("cfg-qwen-model"),
+          rhKey: document.getElementById("cfg-rh-key"),
+          rhBase: document.getElementById("cfg-rh-base"),
+          t8Key: document.getElementById("cfg-gemini-t8-key"),
+          t8Base: document.getElementById("cfg-gemini-t8-base"),
+          t8Model: document.getElementById("cfg-gemini-t8-model"),
+          comKey: document.getElementById("cfg-gemini-com-key"),
+          comBase: document.getElementById("cfg-gemini-com-base"),
+          comModel: document.getElementById("cfg-gemini-com-model"),
+          cherryinGeminiKey: document.getElementById("cfg-gemini-cherryin-key"),
+          cherryinGeminiBase: document.getElementById("cfg-gemini-cherryin-base"),
+          cherryinGeminiModel: document.getElementById("cfg-gemini-cherryin-model"),
+          aihubmixGeminiKey: document.getElementById("cfg-gemini-aihubmix-key"),
+          aihubmixGeminiBase: document.getElementById("cfg-gemini-aihubmix-base"),
+          aihubmixGeminiModel: document.getElementById("cfg-gemini-aihubmix-model"),
+          grsaiGeminiKey: document.getElementById("cfg-gemini-grsai-key"),
+          grsaiGeminiBase: document.getElementById("cfg-gemini-grsai-base"),
+          grsaiGeminiModel: document.getElementById("cfg-gemini-grsai-model"),
+          klingAccessKey: document.getElementById("cfg-kling-access-key"),
+          klingSecretKey: document.getElementById("cfg-kling-secret-key"),
+          klingKey: document.getElementById("cfg-kling-key"),
+          klingBase: document.getElementById("cfg-kling-base"),
+          klingModel: document.getElementById("cfg-kling-model"),
+          ohmygptKey: document.getElementById("cfg-ohmygpt-key"),
+          ohmygptBase: document.getElementById("cfg-ohmygpt-base"),
+          ohmygptModel: document.getElementById("cfg-ohmygpt-model"),
+          modelscopeKey: document.getElementById("cfg-modelscope-key"),
+          modelscopeBase: document.getElementById("cfg-modelscope-base"),
+          modelscopeModel: document.getElementById("cfg-modelscope-model"),
+          siliconflowKey: document.getElementById("cfg-siliconflow-key"),
+          siliconflowBase: document.getElementById("cfg-siliconflow-base"),
+          siliconflowModel: document.getElementById("cfg-siliconflow-model"),
+          cherryinKey: document.getElementById("cfg-cherryin-key"),
+          cherryinBase: document.getElementById("cfg-cherryin-base"),
+          cherryinModel: document.getElementById("cfg-cherryin-model"),
+          publicBaseUrl: document.getElementById("cfg-public-base-url"),
+          maxWorkers: document.getElementById("cfg-max-workers"),
+        };
+        
+        // 将 cfgEls 挂载到 window，供其他函数使用
+        window.cfgEls = cfgEls;
+        
+        console.log("✅ DOM 元素检查通过");
+        
+        // 检查模块是否已加载
+        if (typeof initApi !== 'function') {
+          throw new Error("initApi 函数未加载，请检查模块加载是否成功");
+        }
+        if (typeof initWorkflow !== 'function') {
+          throw new Error("initWorkflow 函数未加载，请检查模块加载是否成功");
+        }
+        
+        // 初始化模块（统一管理，避免重复）
+        initApi(cfgEls);
+        initWorkflow(stepsContainer, wfPreviewEl, wfMaxWorkersEl);
+        console.log("✅ 模块初始化完成");
+        
+        // 初始化模型选择器演示
+        if (typeof initModelPickerDemo === 'function') {
+          initModelPickerDemo();
+          console.log("✅ 模型选择器演示初始化完成");
+        }
+        
+        // 初始化历史记录
+        if (typeof initHistory === 'function') {
+          initHistory();
+          console.log("✅ 历史记录初始化完成");
+        }
+        
+        // 初始化视图切换（必须在DOM加载完成后，且模块已加载）
+        // 这些函数已在模块脚本内部定义并挂载到 window，直接调用
+        if (typeof window.initViewSwitching === 'function') {
+          window.initViewSwitching();
+          console.log("✅ 视图切换初始化完成");
+        } else {
+          console.error("❌ initViewSwitching 函数未找到，请检查模块加载");
+        }
+        
+        // 先绑定基础事件（确保按钮能响应，且模块已加载）
+        // 这些函数已在模块脚本内部定义并挂载到 window，直接调用
+        if (typeof window.bindBasicEvents === 'function') {
+          window.bindBasicEvents();
+          console.log("✅ 基础事件绑定完成");
+        } else {
+          console.error("❌ bindBasicEvents 函数未找到，请检查模块加载");
+        }
+        
+        // 再绑定其他事件（bindAllEvents 已挂载到 window）
+        if (typeof window.bindAllEvents === 'function') {
+          window.bindAllEvents();
+          console.log("✅ 所有事件绑定完成");
+        } else {
+          console.warn("⚠️ bindAllEvents 函数未找到");
+        }
+        
+        // 初始化工作流模板模块
+        const templateSelectEl = document.getElementById("workflow-template-select");
+        if (templateSelectEl && window.initWorkflowTemplates) {
+          window.initWorkflowTemplates(templateSelectEl, wfMaxWorkersEl, workflow, renderSteps, updateWorkflowPreview);
+          console.log("✅ 工作流模板模块初始化完成");
+        }
+        
+        // 初始化壁纸
+        if (typeof initWallpaper === 'function') {
+          initWallpaper();
+          console.log("✅ 壁纸初始化完成");
+        }
+        
+        // 更新 API 状态
+        if (typeof updateApiStatus === 'function') {
+          updateApiStatus();
+          console.log("✅ API 状态更新完成");
+        }
+        
+        await loadConfig();
+        console.log("✅ 配置加载完成");
+        
+        // 初始化目录预览（从输入框读取值并更新预览）
+        if (typeof window.syncDirPreviews === 'function') {
+          window.syncDirPreviews();
+          console.log("✅ 目录预览初始化完成");
+        }
+        
+        // 获取输入框元素并挂载到 window
+        const inputDir1El = document.getElementById("input-dir-1");
+        const inputDir2El = document.getElementById("input-dir-2");
+        const inputDir3El = document.getElementById("input-dir-3");
+        const inputDir4El = document.getElementById("input-dir-4");
+        if (inputDir1El) window.inputDir1El = inputDir1El;
+        if (inputDir2El) window.inputDir2El = inputDir2El;
+        if (inputDir3El) window.inputDir3El = inputDir3El;
+        if (inputDir4El) window.inputDir4El = inputDir4El;
+        
+        // 监听输入框变化，实时更新预览
+        if (inputDir1El) {
+          inputDir1El.addEventListener('input', () => {
+            if (typeof window.syncDirPreviews === 'function') {
+              window.syncDirPreviews();
+            }
+          });
+        }
+        if (inputDir2El) {
+          inputDir2El.addEventListener('input', () => {
+            if (typeof window.syncDirPreviews === 'function') {
+              window.syncDirPreviews();
+            }
+          });
+        }
+        if (inputDir3El) {
+          inputDir3El.addEventListener('input', () => {
+            if (typeof window.syncDirPreviews === 'function') {
+              window.syncDirPreviews();
+            }
+          });
+        }
+        if (inputDir4El) {
+          inputDir4El.addEventListener('input', () => {
+            if (typeof window.syncDirPreviews === 'function') {
+              window.syncDirPreviews();
+            }
+          });
+        }
+        
+        wfMaxWorkersEl.value = 3;
+        addStep("qwen_prompt");
+        console.log("✅ 第一个步骤已添加");
+
+        // 确保第一个步骤已添加
+        if (workflow.steps.length === 0) {
+          console.error("初始化失败：无法添加第一个步骤");
+          throw new Error("无法添加第一个步骤");
+        }
+
+        const rhStepId = "step_rh_tongmo";
+        const firstStepId = workflow.steps[0].id;
+        const rhStep = {
+          id: rhStepId,
+          type: "runninghub_app",
+          params: {
+            webapp_id: "1991820192487460866",
+            instance_type: "plus",
+            filename_suffix: "tongmo_home",
+            bindingsJson: JSON.stringify({
+              prompt: {
+                nodeId: "194",
+                fieldName: "text",
+                fieldType: "STRING",
+                from_step: firstStepId,
+                json_key: "*"
+              },
+              top_image: {
+                nodeId: "Img_1",
+                fieldName: "image",
+                fieldType: "IMAGE"
+              },
+              bottom_image: {
+                nodeId: "Img_2",
+                fieldName: "image",
+                fieldType: "IMAGE"
+              }
+            }, null, 2)
+          },
+          uses: [firstStepId]
+        };
+        workflow.steps.push(rhStep);
+
+        const gemStep = {
+          id: "step_gemini_tryon",
+          type: "gemini_edit",
+          params: {
+            provider: "t8star",
+            mode: "multi",
+            preset: "home",
+            base_from: rhStepId,
+            filename_suffix: "tryon",
+            prompt: ""
+          },
+          uses: [rhStepId]
+        };
+        workflow.steps.push(gemStep);
+
+        renderSteps();
+        updateWorkflowPreview();
+        
+        // 初始化目录预览
+        if (typeof updateDirPreview === 'function') {
+          updateDirPreview();
+        }
+        
+        // 初始化系统修复补丁
+        if (typeof window.initFixes === 'function') {
+          window.initFixes();
+          console.log("✅ 系统修复补丁初始化完成");
+        }
+        
+        console.log("✅ Keroro 作战室初始化完成！");
+      } catch (e) {
+        console.error("❌ 初始化失败:", e);
+        console.error("错误堆栈:", e.stack);
+        const apiBase = window.location.protocol + "//" + window.location.host;
+        const errorMsg = `初始化失败: ${e.message}\n\n请检查：\n1. 浏览器控制台是否有其他错误\n2. 后端服务是否在运行 (${apiBase})\n3. 网络连接是否正常`;
+        alert(errorMsg);
+        // 在页面上显示错误信息
+        const errorDiv = document.createElement("div");
+        errorDiv.style.cssText = "position:fixed;top:20px;right:20px;background:#ff6b6b;color:white;padding:20px;border-radius:8px;z-index:10000;max-width:400px;";
+        errorDiv.innerHTML = `<strong>初始化错误</strong><br>${e.message}<br><small>查看控制台获取详细信息</small>`;
+        document.body.appendChild(errorDiv);
+      }
+    };
+    
+    // 等待 DOM 加载完成后初始化应用
+    // 确保模块加载完成后再初始化
+    const initWhenReady = () => {
+      if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', () => {
+          console.log('📄 DOM 加载完成，开始初始化应用...');
+          // 再次检查模块是否已加载
+          if (window.switchView && window.getStepTypeOptions && window.addStep) {
+            window.initApp();
+          } else {
+            console.warn('⚠️ 模块尚未完全加载，延迟初始化...');
+            setTimeout(initWhenReady, 100);
+          }
+        });
+      } else {
+        // DOM 已经加载完成，检查模块是否已加载
+        console.log('📄 DOM 已就绪，检查模块加载状态...');
+        if (window.switchView && window.getStepTypeOptions && window.addStep) {
+          console.log('📄 DOM 已就绪，开始初始化应用...');
+          window.initApp();
+        } else {
+          console.warn('⚠️ 模块尚未完全加载，延迟初始化...');
+          setTimeout(initWhenReady, 100);
+        }
+      }
+    };
+    initWhenReady();
+  } catch (e) {
+    console.error('❌ 模块加载失败:', e);
+    console.error('错误堆栈:', e.stack);
+    console.error('错误详情:', {
+      message: e.message,
+      name: e.name,
+      fileName: e.fileName,
+      lineNumber: e.lineNumber,
+      columnNumber: e.columnNumber
+    });
+    
+    const errorDiv = document.createElement('div');
+    errorDiv.style.cssText = 'position:fixed;top:20px;left:50%;transform:translateX(-50%);background:#ff6b6b;color:white;padding:20px;border-radius:8px;z-index:10000;max-width:600px;box-shadow:0 4px 12px rgba(0,0,0,0.3);';
+    errorDiv.innerHTML = `
+      <strong>模块加载失败</strong><br>
+      错误: ${e.message}<br>
+      ${e.fileName ? `文件: ${e.fileName}<br>` : ''}
+      ${e.lineNumber ? `行号: ${e.lineNumber}<br>` : ''}
+      <small>请检查浏览器控制台获取详细信息</small>
+    `;
+    document.body.appendChild(errorDiv);
+    throw e; // 重新抛出错误，让浏览器控制台也能看到
+  }
+  
+  // 全局错误处理，确保脚本加载问题能被捕获
+  window.addEventListener('error', (e) => {
+    console.error('脚本错误:', e.error, e.filename, e.lineno);
+    // showToast 已通过导入可用
+    if (typeof showToast === 'function') {
+      showToast('发生错误，请查看控制台', 'error');
+    }
+  });
+
+  // 处理未捕获的 Promise rejection（包括浏览器扩展通信错误）
+  window.addEventListener('unhandledrejection', (e) => {
+    const error = e.reason;
+    const errorMessage = error?.message || String(error);
+    
+    // 忽略浏览器扩展相关的错误（这些是常见的且不影响功能）
+    if (errorMessage.includes('message channel closed') || 
+        errorMessage.includes('runtime.lastError') ||
+        errorMessage.includes('Extension context invalidated')) {
+      e.preventDefault(); // 阻止错误在控制台显示
+      return;
+    }
+    
+    // 其他未处理的 Promise rejection
+    console.error('未处理的 Promise rejection:', error);
+    // 不显示toast，因为可能是预期的错误（如网络错误）
+  });
+
+  // 静默处理浏览器扩展API错误（如果存在）
+  if (typeof chrome !== 'undefined' && chrome.runtime) {
+    // 检查是否有 lastError，如果有则清除（避免控制台警告）
+    try {
+      if (chrome.runtime.lastError) {
+        // 静默忽略扩展错误
+        void chrome.runtime.lastError;
+      }
+    } catch (e) {
+      // 忽略
+    }
+  }
+
+  // 从环境变量或当前页面协议/主机获取API地址，如果没有则使用默认
+  const apiBase = (() => {
+    // 尝试从 window.location 获取（如果前端和后端在同一服务器）
+    if (window.location.port) {
+      return `${window.location.protocol}//${window.location.hostname}:${window.location.port}`;
+    }
+    // 尝试从环境变量或配置获取
+    const envApiBase = window.API_BASE_URL || localStorage.getItem('apiBaseUrl');
+    if (envApiBase) {
+      return envApiBase;
+    }
+    // 默认使用当前协议和主机，端口由后端自动分配
+    return `${window.location.protocol}//${window.location.hostname}`;
+  })();
+
+  // showToast 已从 utils.js 模块导入，不需要重复定义
+
+  // ========== 键盘导航支持 ==========
+  document.addEventListener('keydown', (e) => {
+    // ESC 关闭模态框
+    if (e.key === 'Escape') {
+      const openModals = document.querySelectorAll('.keroro-modal-overlay:not(.hidden)');
+      openModals.forEach(modal => {
+        const modalId = modal.id;
+        if (modalId) {
+          console.log(`[Modal] ESC 键关闭模态框: ${modalId}`);
+          const closeFn = window.closeModal;
+          if (typeof closeFn === 'function') {
+            closeFn(modalId);
+          } else {
+            // 直接操作 DOM 作为后备
+            modal.classList.add("hidden");
+            modal.style.display = "none";
+          }
+        }
+      });
+      const wallpaperSettings = document.getElementById('wallpaper-settings');
+      if (wallpaperSettings && wallpaperSettings.classList.contains('show')) {
+        document.getElementById('btn-close-wallpaper')?.click();
+      }
+    }
+    // Ctrl/Cmd + S 保存配置
+    if ((e.ctrlKey || e.metaKey) && e.key === 's') {
+      e.preventDefault();
+      const saveBtn = document.getElementById('btn-save-config');
+      if (saveBtn && !saveBtn.disabled) {
+        saveBtn.click();
+        showToast('配置已保存', 'success');
+      }
+    }
+  });
+
+  // ========== 按钮加载状态管理 ==========
+  function setButtonLoading(button, loading) {
+    if (!button) return;
+    if (loading) {
+      button.classList.add('loading');
+      button.disabled = true;
+    } else {
+      button.classList.remove('loading');
+      button.disabled = false;
+    }
+  }
+
+  // cfgEls 已移到模块加载部分（第975行之后），避免初始化顺序问题
+
+  const stepsContainer = document.getElementById("steps-container");
+  const wfPreviewEl = document.getElementById("wf-json-preview");
+  const wfMaxWorkersEl = document.getElementById("wf-max-workers");
+  const inputDir1El = document.getElementById("input-dir-1");
+  const inputDir2El = document.getElementById("input-dir-2");
+  const inputDir3El = document.getElementById("input-dir-3");
+  const inputDir4El = document.getElementById("input-dir-4");
+  
+  // 挂载到 window，供模块脚本外部使用
+  window.inputDir1El = inputDir1El;
+  window.inputDir2El = inputDir2El;
+  window.inputDir3El = inputDir3El;
+  window.inputDir4El = inputDir4El;
+
+  // 任务控制元素（Workflow 视图中的隐藏元素，用于数据同步）
+  const jobIdEl = document.getElementById("job-id-runs") || (() => {
+    const el = document.createElement("input");
+    el.id = "job-id";
+    el.style.display = "none";
+    document.body.appendChild(el);
+    return el;
+  })();
+  const jobStatusPill = document.getElementById("job-status-pill-runs") || document.createElement("div");
+  const jobProgressInner = document.getElementById("job-progress-inner-runs") || document.createElement("div");
+  const jobMessageEl = document.getElementById("job-message-runs") || document.createElement("div");
+  const jobErrorsEl = document.getElementById("job-errors-runs") || document.createElement("div");
+
+  // workflow 对象已从 workflow.js 模块导入，不需要重复定义
+  let currentJobId = null;
+  let pollTimer = null;
+  let lastWorkflowForResume = null;
+  let lastJobStatus = null; // 用于检测状态变化
+
+  // ========== 步骤类型配置系统 ==========
+  // STEP_TYPES 已从 config.js 模块导入，使用 window.STEP_TYPES
+  // 如果 window.STEP_TYPES 不存在（模块加载失败），则使用默认配置
+  if (!window.STEP_TYPES) {
+    window.STEP_TYPES = {
+    qwen_prompt: {
+      name: "Qwen 提示词",
+      icon: "💬",
+      category: "输入",
+      description: "使用 Qwen 模型分析图片并生成描述提示词",
+      defaultParams: {
+        preset: "home",
+        ip_mode: "auto",
+        age_group: "big_kid",
+        gender: "female"
+      },
+      getSummary: (step) => {
+        const parts = [];
+        parts.push(`<span class="step-summary-item">${step.params.preset || "home"}</span>`);
+        parts.push(`<span class="step-summary-item">${step.params.ip_mode || "auto"}</span>`);
+        return parts.join("");
+      }
+    },
+    vision_prompt: {
+      name: "视觉提示词",
+      icon: "👁️",
+      category: "输入",
+      description: "使用 AI 模型（Qwen/Gemini）分析图片并生成描述提示词，支持多个提供商",
+      defaultParams: {
+        provider: "qwen",
+        preset: "home",
+        ip_mode: "auto",
+        age_group: "big_kid",
+        gender: "female"
+      },
+      getSummary: (step) => {
+        const parts = [];
+        parts.push(`<span class="step-summary-item">${step.params.provider || "qwen"}</span>`);
+        parts.push(`<span class="step-summary-item">${step.params.preset || "home"}</span>`);
+        parts.push(`<span class="step-summary-item">${step.params.ip_mode || "auto"}</span>`);
+        return parts.join("");
+      }
+    },
+    runninghub_app: {
+      name: "RunningHub 应用",
+      icon: "🔄",
+      category: "处理",
+      description: "调用 RunningHub 应用（如试衣、换装等）",
+      defaultParams: {
+        webapp_id: "1991820192487460866",
+        instance_type: "plus",
+        filename_suffix: "tongmo_home",
+        bindingsJson: JSON.stringify({
+          prompt: {
+            nodeId: "194",
+            fieldName: "text",
+            fieldType: "STRING",
+            from_step: "step_qwen_home",
+            json_key: "*"
+          },
+          top_image: {
+            nodeId: "Img_1",
+            fieldName: "image",
+            fieldType: "IMAGE"
+          },
+          bottom_image: {
+            nodeId: "Img_2",
+            fieldName: "image",
+            fieldType: "IMAGE"
+          }
+        }, null, 2)
+      },
+      getSummary: (step) => {
+        const parts = [];
+        const webappId = step.params.webapp_id || "";
+        parts.push(`<span class="step-summary-item">WebApp: ${webappId.substring(0, 8)}...</span>`);
+        if (step.params.instance_type) {
+          parts.push(`<span class="step-summary-item">${step.params.instance_type}</span>`);
+        }
+        return parts.join("");
+      }
+    },
+    gemini_edit: {
+      name: "Gemini 换装",
+      icon: "👔",
+      category: "处理",
+      description: "使用 Gemini 进行换装（预设模式，自动生成提示词）",
+      defaultParams: {
+        provider: "t8star",
+        mode: "multi",
+        preset: "home",
+        base_from: "slot1",
+        cloth_slot_top: "slot2",
+        cloth_slot_bottom: "slot3",
+        target_part: "full",
+        crop_mode: "none",
+        prompt_version: "legacy",
+        filename_suffix: "tryon",
+        prompt: ""
+      },
+      getSummary: (step) => {
+        const parts = [];
+        parts.push(`<span class="step-summary-item">${step.params.provider || "t8star"}</span>`);
+        parts.push(`<span class="step-summary-item">${step.params.mode || "multi"}</span>`);
+        parts.push(`<span class="step-summary-item">${step.params.target_part || "full"}</span>`);
+        if (step.params.crop_mode === "auto_from_part") {
+          parts.push(`<span class="step-summary-item">自动裁切</span>`);
+        }
+        return parts.join("");
+      }
+    },
+    gemini_edit_custom: {
+      name: "Gemini 自定义编辑",
+      icon: "🎨",
+      category: "处理",
+      description: "使用 Gemini 进行自定义图片编辑（需要手动输入提示词）",
+      defaultParams: {
+        provider: "t8star",
+        image_sources: ["slot1"],
+        output_count: 1,
+        filename_suffix: "custom_edit",
+        prompt: ""
+      },
+      getSummary: (step) => {
+        const parts = [];
+        parts.push(`<span class="step-summary-item">${step.params.provider || "t8star"}</span>`);
+        parts.push(`<span class="step-summary-item">输出${step.params.output_count || 1}张</span>`);
+        return parts.join("");
+      }
+    },
+    gemini_generate: {
+      name: "Gemini 文生图",
+      icon: "🖼️",
+      category: "生成",
+      description: "使用 Gemini 从文本提示词生成图片",
+      defaultParams: {
+        provider: "t8star",
+        aspect_ratio: "3:4",
+        prompt: ""
+      },
+      getSummary: (step) => {
+        const parts = [];
+        parts.push(`<span class="step-summary-item">${step.params.provider || "t8star"}</span>`);
+        parts.push(`<span class="step-summary-item">${step.params.aspect_ratio || "3:4"}</span>`);
+        if (step.params.base_prompt_from) {
+          parts.push(`<span class="step-summary-item">Prompt来自${step.params.base_prompt_from}</span>`);
+        } else if (step.params.prompt) {
+          const promptPreview = step.params.prompt.length > 20 
+            ? step.params.prompt.substring(0, 20) + "..." 
+            : step.params.prompt;
+          parts.push(`<span class="step-summary-item">Prompt: ${promptPreview}</span>`);
+        }
+        return parts.join("");
+      }
+    },
+    gemini_generate_model: {
+      name: "Gemini 生模特",
+      icon: "👤",
+      category: "生成",
+      description: "使用 Gemini 生成模特图片（基于提示词）",
+      defaultParams: {
+        provider: "t8star",
+        aspect_ratio: "3:4",
+        prompt_template: ""
+      },
+      getSummary: (step) => {
+        const parts = [];
+        parts.push(`<span class="step-summary-item">${step.params.provider || "t8star"}</span>`);
+        parts.push(`<span class="step-summary-item">${step.params.aspect_ratio || "3:4"}</span>`);
+        if (step.params.base_prompt_from) {
+          parts.push(`<span class="step-summary-item">来自${step.params.base_prompt_from}</span>`);
+        }
+        return parts.join("");
+      }
+    },
+    compare_image: {
+      name: "对比图生成",
+      icon: "🔄",
+      category: "处理",
+      description: "将原图和新图拼接在一起生成对比图",
+      defaultParams: {
+        original_source: "slot1",
+        new_source: ""
+      },
+      getSummary: (step) => {
+        const parts = [];
+        parts.push(`<span class="step-summary-item">原图: ${step.params.original_source || "slot1"}</span>`);
+        if (step.params.new_source) {
+          parts.push(`<span class="step-summary-item">新图: ${step.params.new_source}</span>`);
+        }
+        return parts.join("");
+      }
+    },
+    kling_image2video: {
+      name: "可灵图生视频",
+      icon: "🎬",
+      category: "生成",
+      description: "使用 Kling AI 将图片转换为视频",
+      defaultParams: {
+        model_name: "kling-v2-5",
+        mode: "std",
+        aspect_ratio: "auto",
+        base_from: ""
+      },
+      getSummary: (step) => {
+        const parts = [];
+        parts.push(`<span class="step-summary-item">${step.params.model_name || "kling-v2-5"}</span>`);
+        parts.push(`<span class="step-summary-item">${step.params.mode || "std"}</span>`);
+        const aspectRatio = step.params.aspect_ratio || "auto";
+        const aspectRatioText = aspectRatio === "auto" ? "根据输入图" : aspectRatio;
+        parts.push(`<span class="step-summary-item">${aspectRatioText}</span>`);
+        if (step.params.base_from) {
+          parts.push(`<span class="step-summary-item">来自${step.params.base_from}</span>`);
+        }
+        return parts.join("");
+      }
+    }
+    };
+  }
+  
+  // ========== 配置相关函数 ==========
+  // STEP_TYPES, getStepTypeOptions, getStepTypeName, getStepTypeIcon, getStepTypeDescription, keroroLines
+  // 已从 config.js 模块导入并挂载到 window，直接使用 window.xxx 即可
+
+  // ========== 模态框管理 ==========
+  // 所有模态框操作统一使用 ui.js 中的函数（已通过 window 挂载）
+  // 不再需要本地后备函数，直接使用 window.openModal 和 window.closeModal
+
+  // getImageSourceOptions 和 getPromptSourceOptions 已从 workflow.js 模块导入并挂载到 window
+  // 不再需要本地定义，直接使用 window.getImageSourceOptions 和 window.getPromptSourceOptions
+
+  // showKeroroDialog 和 hideKeroroDialog 已从 ui.js 模块导入并挂载到 window
+  // 不再需要本地定义，直接使用 window.showKeroroDialog 和 window.hideKeroroDialog
+  window.showKeroroDialog = showKeroroDialog;
+  window.hideKeroroDialog = hideKeroroDialog;
+
+  // 更新 API 状态
+  async function updateApiStatus() {
+    try {
+      // 使用 window.getApiBase 或动态获取
+      const baseUrl = (window.getApiBase && typeof window.getApiBase === 'function') 
+        ? window.getApiBase() 
+        : (window.location.protocol + "//" + window.location.host);
+      const res = await fetch(`${baseUrl}/api/config`);
+      if (!res.ok) {
+        throw new Error(`HTTP ${res.status}`);
+      }
+      const data = await res.json();
+      // 更新设置视图中的API状态徽章
+      const badge = document.getElementById("api-status-badge-settings");
+      if (!badge) return;
+      
+      const hasConfig = data.qwen_api_key || data.runninghub_api_key || data.gemini_t8star_api_key || data.gemini_comfly_api_key || data.gemini_cherryin_api_key || data.gemini_aihubmix_api_key || data.gemini_grsai_api_key || data.kling_api_key;
+      if (hasConfig) {
+        badge.textContent = "已配置";
+        badge.style.borderColor = "var(--keroro-success)";
+        badge.style.color = "var(--keroro-success)";
+        badge.style.background = "rgba(81, 207, 102, 0.15)";
+      } else {
+        badge.textContent = "未配置";
+        badge.style.borderColor = "var(--keroro-text-muted)";
+        badge.style.color = "var(--keroro-text-muted)";
+        badge.style.background = "transparent";
+      }
+    } catch (e) {
+      const badge = document.getElementById("api-status-badge-settings");
+      if (!badge) return;
+      badge.textContent = "检查失败";
+      badge.style.borderColor = "var(--keroro-danger)";
+      badge.style.color = "var(--keroro-danger)";
+      badge.style.background = "rgba(255, 107, 107, 0.15)";
+      console.error("更新 API 状态失败:", e);
+    }
+  }
+
+  // 壁纸管理
+  function initWallpaper() {
+    const saved = localStorage.getItem('keroro-wallpaper');
+    const savedOpacity = localStorage.getItem('keroro-wallpaper-opacity') || '15';
+    if (saved) {
+      document.documentElement.style.setProperty('--custom-wallpaper', `url(${saved})`);
+      document.documentElement.style.setProperty('--wallpaper-opacity', savedOpacity / 100);
+      document.getElementById('wallpaper-url').value = saved;
+      document.getElementById('wallpaper-opacity').value = savedOpacity;
+      document.getElementById('opacity-value').textContent = savedOpacity + '%';
+      updateWallpaperPreview();
+    }
+  }
+
+  function updateWallpaperPreview() {
+    const url = document.getElementById('wallpaper-url').value;
+    const preview = document.getElementById('wallpaper-preview');
+    if (url) {
+      preview.style.backgroundImage = `url(${url})`;
+    } else {
+      preview.style.backgroundImage = 'none';
+    }
+  }
+
+  document.getElementById('wallpaper-url').addEventListener('input', updateWallpaperPreview);
+  document.getElementById('wallpaper-opacity').addEventListener('input', (e) => {
+    const val = e.target.value;
+    document.getElementById('opacity-value').textContent = val + '%';
+    document.documentElement.style.setProperty('--wallpaper-opacity', val / 100);
+  });
+
+  // 壁纸相关按钮（在 bindAllEvents 中绑定）
+
+  document.getElementById('wallpaper-upload').addEventListener('change', async (e) => {
+    const file = e.target.files[0];
+    if (!file) return;
+    
+    const statusEl = document.getElementById('upload-status');
+    statusEl.textContent = '上传中...';
+    statusEl.style.color = 'var(--keroro-text-muted)';
+    
+    try {
+      const formData = new FormData();
+      formData.append('file', file);
+      
+      const res = await fetch(`${apiBase}/api/wallpaper/upload`, {
+        method: 'POST',
+        body: formData
+      });
+      
+      if (!res.ok) {
+        const errorData = await res.json().catch(() => ({ detail: '上传失败' }));
+        throw new Error(errorData.detail || '上传失败');
+      }
+      
+      const data = await res.json();
+      if (data.success && data.url) {
+        // 使用返回的URL
+        const fullUrl = `${apiBase}${data.url}`;
+        document.getElementById('wallpaper-url').value = fullUrl;
+        updateWallpaperPreview();
+        statusEl.textContent = '上传成功！';
+        statusEl.style.color = 'var(--keroro-success)';
+        // 清空文件输入，允许重复上传同一文件
+        e.target.value = '';
+      } else {
+        throw new Error(data.detail || '上传失败');
+      }
+    } catch (error) {
+      statusEl.textContent = '上传失败：' + error.message;
+      statusEl.style.color = 'var(--keroro-danger)';
+      console.error('壁纸上传错误:', error);
+    }
+  });
+
+  // setStatusPill 已从 ui.js 模块导入，不需要重复定义
+  // 如果需要向后兼容（单参数调用），请使用 window.setStatusPill
+
+  // Debounce 工具函数
+  function debounce(func, wait) {
+    let timeout;
+    return function executedFunction(...args) {
+      const later = () => {
+        clearTimeout(timeout);
+        func(...args);
+      };
+      clearTimeout(timeout);
+      timeout = setTimeout(later, wait);
+    };
+  }
+
+  // 使用 debounce 优化 updateWorkflowPreview（300ms 延迟）
+  const updateWorkflowPreviewDebounced = debounce(() => {
+    const preview = {
+      max_workers: Number(wfMaxWorkersEl.value || 1),
+      steps: workflow.steps.map(s => {
+        const base = {
+          id: s.id,
+          type: s.type,
+          params: { ...s.params },
+          uses: s.uses || [],
+          connections: s.connections || null,
+          ui: s.ui || null
+        };
+        if (s.type === "runninghub_app" && typeof s.params.bindingsJson === "string") {
+          try {
+            base.params.bindings = JSON.parse(s.params.bindingsJson || "{}");
+          } catch (_) {}
+          delete base.params.bindingsJson;
+        }
+        return base;
+      })
+    };
+    wfPreviewEl.textContent = JSON.stringify(preview, null, 2);
+  }, 300);
+
+  // updateWorkflowPreview 已从 workflow.js 模块导入
+  // 保留 debounce 版本的本地实现，但使用导入的 workflow 对象
+  const updateWorkflowPreviewLocal = () => {
+    updateWorkflowPreviewDebounced();
+  };
+  // 使用导入的版本，但保留本地 debounce 逻辑
+  window.updateWorkflowPreview = updateWorkflowPreviewLocal;
+
+  // 结果浏览器功能
+  let currentResultsJobId = null;
+  let currentSelectedLookId = null;
+
+  async function openResultsBrowser() {
+    if (!currentJobId) {
+      alert("请先运行一个任务");
+      return;
+    }
+    currentResultsJobId = currentJobId;
+    const openFn = window.openModal;
+    if (typeof openFn === 'function') {
+      openFn("modal-results-overlay");
+    } else {
+      console.error('[Modal] openModal 函数不可用');
+    }
+    await loadJobResults();
+  }
+
+  async function loadJobResults() {
+    if (!currentResultsJobId) return;
+    
+    try {
+      const res = await fetch(`${apiBase}/api/jobs/${currentResultsJobId}/items`);
+      if (!res.ok) {
+        const errorText = await res.text();
+        throw new Error(`HTTP ${res.status}: ${errorText || '未知错误'}`);
+      }
+      const data = await res.json();
+      
+      const lookListEl = document.getElementById("results-look-list");
+      const outputsEl = document.getElementById("results-outputs");
+      
+      if (!lookListEl || !outputsEl) return;
+      
+      lookListEl.innerHTML = "";
+      outputsEl.innerHTML = "";
+      
+      if (data.items && data.items.length > 0) {
+        data.items.forEach(item => {
+          const lookBtn = document.createElement("div");
+          lookBtn.className = `result-item-card ${item.look_id === currentSelectedLookId ? 'active' : ''}`;
+          lookBtn.textContent = `Look: ${item.look_id}`;
+          lookBtn.onclick = () => {
+            currentSelectedLookId = item.look_id;
+            loadLookOutputs(item.outputs);
+            // 更新选中状态
+            document.querySelectorAll(".result-item-card").forEach(card => {
+              card.classList.remove("active");
+            });
+            lookBtn.classList.add("active");
+          };
+          lookListEl.appendChild(lookBtn);
+        });
+        
+        // 默认选中第一个
+        if (data.items.length > 0) {
+          currentSelectedLookId = data.items[0].look_id;
+          loadLookOutputs(data.items[0].outputs);
+          if (lookListEl.firstChild) {
+            lookListEl.firstChild.classList.add("active");
+          }
+        }
+      } else {
+        outputsEl.innerHTML = "<div class='small-text'>暂无结果</div>";
+      }
+    } catch (e) {
+      console.error("加载任务结果失败:", e);
+      const outputsEl = document.getElementById("results-outputs");
+      if (outputsEl) {
+        outputsEl.innerHTML = `<div class='small-text' style='color: var(--keroro-danger);'>加载失败：${e.message || String(e)}</div>`;
+      }
+    }
+  }
+
+  function loadLookOutputs(outputs) {
+    const outputsEl = document.getElementById("results-outputs");
+    outputsEl.innerHTML = "";
+    
+    if (!outputs || outputs.length === 0) {
+      outputsEl.innerHTML = '<div class="small-text" style="color:var(--keroro-text-muted);">该 Look 暂无输出文件</div>';
+      return;
+    }
+    
+    outputs.forEach(output => {
+      const item = document.createElement("div");
+      item.style.position = "relative";
+      
+      if (output.type === "image") {
+        const img = document.createElement("img");
+        img.className = "result-thumbnail";
+        img.src = `${apiBase}/static/jobs/${currentResultsJobId}/items/${currentSelectedLookId}/${output.filename}`;
+        img.alt = output.filename;
+        img.onclick = () => {
+          window.open(img.src, '_blank');
+        };
+        item.appendChild(img);
+        const label = document.createElement("div");
+        label.className = "small-text";
+        label.style.marginTop = "8px";
+        label.textContent = output.filename;
+        label.style.textAlign = "center";
+        item.appendChild(label);
+      } else {
+        const div = document.createElement("div");
+        div.className = "result-thumbnail";
+        div.style.display = "flex";
+        div.style.alignItems = "center";
+        div.style.justifyContent = "center";
+        div.style.flexDirection = "column";
+        div.style.gap = "8px";
+        div.innerHTML = `<span style="font-size: 32px;">📄</span><span class="small-text">${output.filename}</span>`;
+        div.onclick = () => {
+          window.open(`${apiBase}/static/jobs/${currentResultsJobId}/items/${currentSelectedLookId}/${output.filename}`, '_blank');
+        };
+        item.appendChild(div);
+      }
+      
+      outputsEl.appendChild(item);
+    });
+  }
+
+  function openJobDetail() {
+    if (!currentJobId) {
+      alert("请先运行一个任务");
+      return;
+    }
+    const openFn = window.openModal;
+    if (typeof openFn === 'function') {
+      openFn("modal-job-detail-overlay");
+    } else {
+      console.error('[Modal] openModal 函数不可用');
+    }
+    refreshJobDetail();
+  }
+  
+  // 挂载到 window 对象，供外部调用
+  window.openJobDetail = openJobDetail;
+  window.openResultsBrowser = openResultsBrowser;
+
+  async function refreshJobDetail() {
+    if (!currentJobId) return;
+    try {
+      const res = await fetch(`${apiBase}/api/jobs/${currentJobId}`);
+      if (!res.ok) {
+        const errorText = await res.text();
+        throw new Error(`HTTP ${res.status}: ${errorText || '未知错误'}`);
+      }
+      const data = await res.json();
+      document.getElementById("job-detail-id").textContent = data.job_id;
+      setStatusPillForElement(document.getElementById("job-detail-status"), data.status);
+      document.getElementById("job-detail-progress").textContent = `${data.done}/${data.total}`;
+      document.getElementById("job-detail-message").textContent = data.message || "-";
+      document.getElementById("job-detail-errors").textContent = 
+        data.error_items && Object.keys(data.error_items).length > 0 
+          ? JSON.stringify(data.error_items, null, 2) 
+          : "-";
+      
+      // 显示视频预览（如果有）- 通过 items API 获取视频信息
+      const videoContainer = document.getElementById("job-detail-video-container");
+      const videoSection = document.getElementById("job-detail-videos");
+      videoContainer.innerHTML = "";
+      
+      try {
+        const itemsRes = await fetch(`${apiBase}/api/jobs/${currentJobId}/items`);
+        if (itemsRes.ok) {
+          const itemsData = await itemsRes.json();
+          let hasVideo = false;
+          
+          if (itemsData.items && Array.isArray(itemsData.items)) {
+            itemsData.items.forEach(item => {
+              // 查找该 item 目录下的视频文件
+              if (item.outputs && Array.isArray(item.outputs)) {
+                item.outputs.forEach(output => {
+                  if (output.filename && output.filename.endsWith(".mp4")) {
+                    hasVideo = true;
+                    const videoDiv = document.createElement("div");
+                    videoDiv.style.border = "1px solid var(--keroro-border)";
+                    videoDiv.style.borderRadius = "8px";
+                    videoDiv.style.padding = "12px";
+                    videoDiv.style.background = "rgba(10, 20, 10, 0.6)";
+                    videoDiv.style.marginBottom = "12px";
+                    
+                    const stepLabel = document.createElement("div");
+                    stepLabel.textContent = `${item.look_id} - ${output.filename}`;
+                    stepLabel.style.marginBottom = "8px";
+                    stepLabel.style.fontSize = "12px";
+                    stepLabel.style.color = "var(--keroro-text-muted)";
+                    videoDiv.appendChild(stepLabel);
+                    
+                    // 尝试使用 video 标签播放
+                    const video = document.createElement("video");
+                    video.controls = true;
+                    video.style.width = "100%";
+                    video.style.maxWidth = "600px";
+                    video.style.borderRadius = "4px";
+                    video.src = `${apiBase}/static/${output.relative_path}`;
+                    video.onerror = () => {
+                      // 如果无法播放，显示路径信息
+                      video.style.display = "none";
+                      const pathInfo = document.createElement("div");
+                      pathInfo.style.fontSize = "12px";
+                      pathInfo.style.color = "var(--keroro-text-muted)";
+                      pathInfo.textContent = `视频文件: ${output.relative_path}`;
+                      videoDiv.appendChild(pathInfo);
+                    };
+                    
+                    videoDiv.appendChild(video);
+                    videoContainer.appendChild(videoDiv);
+                  }
+                });
+              }
+            });
+          }
+          
+          videoSection.style.display = hasVideo ? "block" : "none";
+        }
+      } catch (e) {
+        console.error("获取视频信息失败:", e);
+        videoSection.style.display = "none";
+      }
+    } catch (e) {
+      console.error("刷新任务详情失败:", e);
+    }
+  }
+
+  function setStatusPillForElement(el, status) {
+    el.textContent = status || "-";
+    el.className = "status-pill";
+    if (status === "running") el.classList.add("running");
+    if (status === "completed") el.classList.add("completed");
+    if (status === "partial") el.classList.add("partial");
+    if (status === "failed" || status === "cancelled") el.classList.add("failed");
+  }
+
+  // 步骤渲染缓存（用于优化性能）
+  // 注意：renderSteps 函数已从 workflow.js 模块导入，不再在此处定义
+  // 如果需要访问缓存变量，它们应该在 workflow.js 中管理
+
+  // 已删除本地 renderSteps 函数，使用从 workflow.js 导入的版本
+  // 如果需要在卡片上显示 vision_prompt 的特殊字段，请考虑将其添加到 workflow.js 中的 renderSteps 函数
+
+  function getStepSummary(step) {
+    const summaries = [];
+    
+    // 使用配置系统获取摘要
+    const stepTypeConfig = STEP_TYPES[step.type];
+    if (stepTypeConfig && stepTypeConfig.getSummary) {
+      const summaryHtml = stepTypeConfig.getSummary(step);
+      if (summaryHtml) {
+        summaries.push(summaryHtml);
+      }
+    }
+    
+    // 添加条件分支和重试信息
+    if (step.when) {
+      summaries.push(`<span class="step-summary-item" style="background:rgba(255,165,0,0.2);border-color:rgba(255,165,0,0.5);color:#ffa500;">条件分支</span>`);
+    }
+    if (step.retry > 0) {
+      summaries.push(`<span class="step-summary-item" style="background:rgba(74,144,226,0.2);border-color:rgba(74,144,226,0.5);color:#4a90e2;">重试${step.retry}次</span>`);
+    }
+    
+    return summaries.length > 0 ? summaries.join("") : '<span class="step-summary-item">默认配置</span>';
+  }
+
+  // openStepAdvancedSettings 和 renderAdvancedSettings 已移至 workflow.js 模块
+  // 这些函数现在从 workflow.js 导入并使用
+  // 注意：createField 函数也在 workflow.js 中定义，这里的函数不会被使用
+  // 保留此函数仅用于向后兼容（如果有其他地方直接调用）
+  function createField(labelText, type, options, value, onChange) {
+    console.warn("[index.html] 本地 createField 被调用，应该使用 workflow.js 中的版本");
+    const field = document.createElement("div");
+    field.className = "field";
+    const label = document.createElement("label");
+    label.textContent = labelText;
+    field.appendChild(label);
+    
+    if (type === "select") {
+      const select = document.createElement("select");
+      if (Array.isArray(options)) {
+        options.forEach(opt => {
+          const option = document.createElement("option");
+          if (typeof opt === "string") {
+            option.value = opt;
+            option.textContent = opt;
+          } else {
+            option.value = opt.value || "";
+            option.textContent = opt.text || opt.value || "";
+          }
+          if (option.value === value) option.selected = true;
+          select.appendChild(option);
+        });
+      }
+      select.value = value || "";
+      select.onchange = () => onChange(select.value);
+      field.appendChild(select);
+    } else if (type === "input") {
+      const input = document.createElement("input");
+      input.type = "text";
+      input.value = value || "";
+      input.oninput = () => onChange(input.value);
+      field.appendChild(input);
+    } else if (type === "textarea") {
+      const textarea = document.createElement("textarea");
+      textarea.value = value || "";
+      textarea.oninput = () => onChange(textarea.value);
+      field.appendChild(textarea);
+    }
+    
+    return field;
+  }
+
+  // 已删除本地 normalizeWorkflow 和 addStep 函数，使用从 workflow.js 导入的版本
+  
+  // 统一的视图更新函数 - 同时更新列表和画布视图
+  function updateViews() {
+      renderSteps();
+      updateWorkflowPreview();
+  }
+
+  // loadConfig 函数已移至下方，与配置加载逻辑合并
+
+  async function saveConfig() {
+    try {
+      const cfgEls = getCfgEls();
+      const config = {
+        qwen_api_key: cfgEls.qwenKey.value,
+        qwen_base_url: cfgEls.qwenBase.value,
+        qwen_model: cfgEls.qwenModel.value,
+        runninghub_api_key: cfgEls.rhKey.value,
+        runninghub_base_url: cfgEls.rhBase.value,
+        gemini_t8star_api_key: cfgEls.t8Key.value,
+        gemini_t8star_base_url: cfgEls.t8Base.value,
+        gemini_t8star_model: cfgEls.t8Model ? cfgEls.t8Model.value : "",
+        gemini_comfly_api_key: cfgEls.comKey.value,
+        gemini_comfly_base_url: cfgEls.comBase.value,
+        gemini_comfly_model: cfgEls.comModel ? cfgEls.comModel.value : "",
+        gemini_cherryin_api_key: cfgEls.cherryinGeminiKey ? cfgEls.cherryinGeminiKey.value : "",
+        gemini_cherryin_base_url: cfgEls.cherryinGeminiBase ? cfgEls.cherryinGeminiBase.value : "",
+        gemini_cherryin_model: cfgEls.cherryinGeminiModel ? cfgEls.cherryinGeminiModel.value : "",
+        gemini_aihubmix_api_key: cfgEls.aihubmixGeminiKey ? cfgEls.aihubmixGeminiKey.value : "",
+        gemini_aihubmix_base_url: cfgEls.aihubmixGeminiBase ? cfgEls.aihubmixGeminiBase.value : "",
+        gemini_aihubmix_model: cfgEls.aihubmixGeminiModel ? cfgEls.aihubmixGeminiModel.value : "",
+        gemini_grsai_api_key: cfgEls.grsaiGeminiKey ? cfgEls.grsaiGeminiKey.value : "",
+        gemini_grsai_base_url: cfgEls.grsaiGeminiBase ? cfgEls.grsaiGeminiBase.value : "",
+        gemini_grsai_model: cfgEls.grsaiGeminiModel ? cfgEls.grsaiGeminiModel.value : "",
+        kling_access_key: cfgEls.klingAccessKey.value,
+        kling_secret_key: cfgEls.klingSecretKey.value,
+        kling_api_key: cfgEls.klingKey.value,
+        // 确保 kling_base_url 是基础 URL，不包含路径
+        kling_base_url: (() => {
+          let url = cfgEls.klingBase.value.trim();
+          // 如果包含 /v1/videos/image2video 等路径，自动移除
+          if (url && url.includes('/v1/videos/image2video')) {
+            url = url.replace('/v1/videos/image2video', '').replace(/\/+$/, '');
+          }
+          return url;
+        })(),
+        kling_default_model: cfgEls.klingModel.value,
+        ohmygpt_api_key: cfgEls.ohmygptKey.value,
+        ohmygpt_base_url: cfgEls.ohmygptBase.value,
+        ohmygpt_model: cfgEls.ohmygptModel ? cfgEls.ohmygptModel.value : "",
+        modelscope_api_key: cfgEls.modelscopeKey.value,
+        modelscope_base_url: cfgEls.modelscopeBase.value,
+        modelscope_model: cfgEls.modelscopeModel.value,
+        siliconflow_api_key: cfgEls.siliconflowKey.value,
+        siliconflow_base_url: cfgEls.siliconflowBase.value,
+        siliconflow_model: cfgEls.siliconflowModel.value,
+        cherryin_api_key: cfgEls.cherryinKey.value,
+        cherryin_base_url: cfgEls.cherryinBase.value,
+        cherryin_model: cfgEls.cherryinModel.value,
+        public_base_url: cfgEls.publicBaseUrl ? cfgEls.publicBaseUrl.value : "",
+        max_workers: parseInt(cfgEls.maxWorkers.value) || 4
+      };
+      
+      const res = await fetch(`${apiBase}/api/config`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(config)
+      });
+      
+      if (!res.ok) {
+        const errorText = await res.text();
+        throw new Error(`HTTP ${res.status}: ${errorText || '未知错误'}`);
+      }
+      
+      showToast("配置已保存", "success");
+    } catch (e) {
+      console.error("保存配置失败:", e);
+      showToast("保存配置失败: " + e.message, "error");
+    }
+  }
+
+  // getModelList 函数已删除，使用 fetchModels 函数代替
+
+  // 已删除本地 buildWorkflowPayload 函数，使用从 workflow.js 导入的版本
+  // startJob, refreshJob, cancelJob 函数已在下方定义（第3033行开始），这里不再重复定义
+
+  // ========== 视图切换系统 ==========
+  const viewContainers = document.querySelectorAll('.view-container');
+  const navButtons = document.querySelectorAll('.nav-btn');
+  
+  navButtons.forEach(btn => {
+    btn.addEventListener('click', () => {
+      const targetView = btn.dataset.view;
+      viewContainers.forEach(container => {
+        container.classList.remove('active');
+      });
+      navButtons.forEach(navBtn => {
+        navBtn.classList.remove('active');
+      });
+      const targetContainer = document.querySelector(`[data-view="${targetView}"]`);
+      if (targetContainer) {
+        targetContainer.classList.add('active');
+        btn.classList.add('active');
+      }
+    });
+  });
+
+  // ========== 同步 Settings 视图和模态框的配置输入 ==========
+  function syncConfigInputs(fromSettings, fromModal) {
+    const cfgEls = getCfgEls();
+    const configFields = [
+      { id: 'qwen-key', cfgKey: 'qwenKey' },
+      { id: 'qwen-base', cfgKey: 'qwenBase' },
+      { id: 'qwen-model', cfgKey: 'qwenModel' },
+      { id: 'rh-key', cfgKey: 'rhKey' },
+      { id: 'rh-base', cfgKey: 'rhBase' },
+      { id: 'gemini-t8-key', cfgKey: 't8Key' },
+      { id: 'gemini-t8-base', cfgKey: 't8Base' },
+      { id: 'gemini-t8-model', cfgKey: 't8Model' },
+      { id: 'gemini-com-key', cfgKey: 'comKey' },
+      { id: 'gemini-com-base', cfgKey: 'comBase' },
+      { id: 'gemini-com-model', cfgKey: 'comModel' },
+      { id: 'gemini-cherryin-key', cfgKey: 'cherryinGeminiKey' },
+      { id: 'gemini-cherryin-base', cfgKey: 'cherryinGeminiBase' },
+      { id: 'gemini-cherryin-model', cfgKey: 'cherryinGeminiModel' },
+      { id: 'kling-access-key', cfgKey: 'klingAccessKey' },
+      { id: 'kling-secret-key', cfgKey: 'klingSecretKey' },
+      { id: 'kling-key', cfgKey: 'klingKey' },
+      { id: 'kling-base', cfgKey: 'klingBase' },
+      { id: 'kling-model', cfgKey: 'klingModel' },
+      { id: 'ohmygpt-key', cfgKey: 'ohmygptKey' },
+      { id: 'ohmygpt-base', cfgKey: 'ohmygptBase' },
+      { id: 'ohmygpt-model', cfgKey: 'ohmygptModel' },
+      { id: 'public-base-url', cfgKey: 'publicBaseUrl' },
+      { id: 'modelscope-key', cfgKey: 'modelscopeKey' },
+      { id: 'modelscope-base', cfgKey: 'modelscopeBase' },
+      { id: 'siliconflow-key', cfgKey: 'siliconflowKey' },
+      { id: 'siliconflow-base', cfgKey: 'siliconflowBase' },
+      { id: 'cherryin-key', cfgKey: 'cherryinKey' },
+      { id: 'cherryin-base', cfgKey: 'cherryinBase' },
+      { id: 'max-workers', cfgKey: 'maxWorkers' }
+    ];
+    
+    configFields.forEach(({ id, cfgKey }) => {
+      const settingsEl = document.getElementById(`cfg-${id}-settings`);
+      const modalEl = document.getElementById(`cfg-${id}`);
+      if (fromSettings && settingsEl && cfgEls[cfgKey]) {
+        cfgEls[cfgKey].value = settingsEl.value;
+        if (modalEl) modalEl.value = settingsEl.value;
+      }
+      if (fromModal && modalEl && cfgEls[cfgKey]) {
+        cfgEls[cfgKey].value = modalEl.value;
+        if (settingsEl) settingsEl.value = modalEl.value;
+      }
+    });
+  }
+
+  // ========== 同步 Runs 视图和 Workflow 视图的任务控制 ==========
+  function syncJobControls() {
+    const jobId = currentJobId || jobIdEl?.value || '';
+    const jobStatus = jobStatusPill?.textContent || '-';
+    const jobProgress = jobProgressInner?.style.width || '0%';
+    const jobMessage = jobMessageEl?.textContent || '尚未开始';
+    const jobErrors = jobErrorsEl?.textContent || '-';
+
+    const jobIdRuns = document.getElementById('job-id-runs');
+    const jobStatusRuns = document.getElementById('job-status-pill-runs');
+    const jobProgressRuns = document.getElementById('job-progress-inner-runs');
+    const jobMessageRuns = document.getElementById('job-message-runs');
+    const jobErrorsRuns = document.getElementById('job-errors-runs');
+
+    if (jobIdRuns) {
+      // job-id-runs 是 input 元素，使用 value 而不是 textContent
+      if (jobIdRuns.tagName === 'INPUT') {
+        jobIdRuns.value = jobId;
+      } else {
+        jobIdRuns.textContent = jobId;
+      }
+    }
+    if (jobStatusRuns) setStatusPillForElement(jobStatusRuns, jobStatus);
+    if (jobProgressRuns) jobProgressRuns.style.width = jobProgress;
+    if (jobMessageRuns) jobMessageRuns.textContent = jobMessage;
+    if (jobErrorsRuns) jobErrorsRuns.textContent = jobErrors;
+        }
+
+  // ========== 同步目录预览 ==========
+  function updateDirsPreview() {
+    // 获取输入框元素（如果还没有挂载到 window）
+    // 使用 window 对象访问，避免引用未定义的模块变量
+    const dir1El = window.inputDir1El || document.getElementById('input-dir-1');
+    const dir2El = window.inputDir2El || document.getElementById('input-dir-2');
+    const dir3El = window.inputDir3El || document.getElementById('input-dir-3');
+    const dir4El = window.inputDir4El || document.getElementById('input-dir-4');
+    
+    const dir1 = dir1El?.value || '';
+    const dir2 = dir2El?.value || '';
+    const dir3 = dir3El?.value || '';
+    const dir4 = dir4El?.value || '';
+    
+    // 更新 Runs 视图中的目录预览
+    const dir1PreviewRuns = document.getElementById('dir-1-preview-runs');
+    const dir2PreviewRuns = document.getElementById('dir-2-preview-runs');
+    const dir3PreviewRuns = document.getElementById('dir-3-preview-runs');
+    const dir4PreviewRuns = document.getElementById('dir-4-preview-runs');
+    
+    if (dir1PreviewRuns) {
+      dir1PreviewRuns.textContent = dir1 || '未设置';
+      dir1PreviewRuns.style.color = dir1 ? 'var(--keroro-green)' : 'var(--keroro-text-muted)';
+    }
+    if (dir2PreviewRuns) {
+      dir2PreviewRuns.textContent = dir2 || '未设置';
+      dir2PreviewRuns.style.color = dir2 ? 'var(--keroro-green)' : 'var(--keroro-text-muted)';
+    }
+    if (dir3PreviewRuns) {
+      dir3PreviewRuns.textContent = dir3 || '未设置';
+      dir3PreviewRuns.style.color = dir3 ? 'var(--keroro-green)' : 'var(--keroro-text-muted)';
+    }
+    if (dir4PreviewRuns) {
+      dir4PreviewRuns.textContent = dir4 || '未设置';
+      dir4PreviewRuns.style.color = dir4 ? 'var(--keroro-green)' : 'var(--keroro-text-muted)';
+    }
+    
+    // 更新工作流视图中的目录预览
+    const dir1Preview = document.getElementById('dir-1-preview');
+    const dir2Preview = document.getElementById('dir-2-preview');
+    const dir3Preview = document.getElementById('dir-3-preview');
+    const dir4Preview = document.getElementById('dir-4-preview');
+    
+    if (dir1Preview) {
+      dir1Preview.textContent = dir1 || '未设置';
+      dir1Preview.style.color = dir1 ? 'var(--keroro-green)' : 'var(--keroro-text-muted)';
+    }
+    if (dir2Preview) {
+      dir2Preview.textContent = dir2 || '未设置';
+      dir2Preview.style.color = dir2 ? 'var(--keroro-green)' : 'var(--keroro-text-muted)';
+    }
+    if (dir3Preview) {
+      dir3Preview.textContent = dir3 || '未设置';
+      dir3Preview.style.color = dir3 ? 'var(--keroro-green)' : 'var(--keroro-text-muted)';
+    }
+    if (dir4Preview) {
+      dir4Preview.textContent = dir4 || '未设置';
+      dir4Preview.style.color = dir4 ? 'var(--keroro-green)' : 'var(--keroro-text-muted)';
+    }
+    
+    // 如果存在通用的 dirs-preview 元素，也更新它
+    const previewEl = document.getElementById('dirs-preview');
+    if (previewEl) {
+      let preview = `图一目录: ${dir1 || '(未填写)'}`;
+      if (dir2) preview += `\n图二目录: ${dir2}`;
+      if (dir3) preview += `\n图三目录: ${dir3}`;
+      if (dir4) preview += `\n图四目录: ${dir4}`;
+      previewEl.textContent = preview;
+    }
+  }
+  
+  // 同步目录预览（别名，保持兼容性）
+  function syncDirPreviews() {
+    updateDirsPreview();
+  }
+  
+  // 挂载到 window
+  window.syncDirPreviews = syncDirPreviews;
+  window.updateDirsPreview = updateDirsPreview;
+
+  // 事件绑定 - 基础按钮（在 DOMContentLoaded 后执行，确保 DOM 已加载）
+  // bindAllEvents 和 init 函数已移至下方，与完整初始化逻辑合并
+</script>
+</body>
+</html>

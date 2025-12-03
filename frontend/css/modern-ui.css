@@ -1,0 +1,537 @@
+/**
+ * 现代化 UI 增强
+ * 学习前沿 UI 设计模式，提升用户体验
+ */
+
+/* ========== 玻璃态效果 (Glassmorphism) ========== */
+.glass-card {
+  background: rgba(21, 32, 21, 0.6);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border: 1px solid rgba(126, 211, 33, 0.2);
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+}
+
+.glass-input {
+  background: rgba(10, 20, 10, 0.4);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  border: 1px solid rgba(126, 211, 33, 0.15);
+  transition: all 0.3s ease;
+}
+
+.glass-input:focus {
+  background: rgba(10, 20, 10, 0.6);
+  border-color: var(--keroro-green);
+  box-shadow: 0 0 0 3px rgba(126, 211, 33, 0.1);
+}
+
+/* ========== 骨架屏加载 (Skeleton Loading) ========== */
+.skeleton-container {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  padding: 16px;
+}
+
+.skeleton-item {
+  height: 20px;
+  background: linear-gradient(
+    90deg,
+    rgba(126, 211, 33, 0.1) 0%,
+    rgba(126, 211, 33, 0.2) 50%,
+    rgba(126, 211, 33, 0.1) 100%
+  );
+  background-size: 200% 100%;
+  border-radius: 4px;
+  animation: skeleton-loading 1.5s ease-in-out infinite;
+}
+
+.skeleton-item.short {
+  width: 60%;
+}
+
+.skeleton-item.medium {
+  width: 80%;
+}
+
+.skeleton-item.long {
+  width: 100%;
+}
+
+@keyframes skeleton-loading {
+  0% {
+    background-position: 200% 0;
+  }
+  100% {
+    background-position: -200% 0;
+  }
+}
+
+/* ========== 现代化按钮 ========== */
+.btn-modern {
+  position: relative;
+  overflow: hidden;
+  background: linear-gradient(135deg, var(--keroro-green) 0%, var(--keroro-green-dark) 100%);
+  border: none;
+  color: white;
+  font-weight: 600;
+  padding: 12px 24px;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  box-shadow: 0 4px 12px rgba(126, 211, 33, 0.3);
+}
+
+.btn-modern::before {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 0;
+  height: 0;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.3);
+  transform: translate(-50%, -50%);
+  transition: width 0.6s, height 0.6s;
+}
+
+.btn-modern:hover::before {
+  width: 300px;
+  height: 300px;
+}
+
+.btn-modern:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(126, 211, 33, 0.4);
+}
+
+.btn-modern:active {
+  transform: translateY(0);
+}
+
+.btn-modern:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+  transform: none;
+}
+
+/* ========== 现代化输入框 ========== */
+.input-modern {
+  width: 100%;
+  padding: 12px 16px;
+  background: rgba(10, 20, 10, 0.4);
+  border: 2px solid rgba(126, 211, 33, 0.2);
+  border-radius: 8px;
+  color: var(--keroro-text);
+  font-size: 14px;
+  transition: all 0.3s ease;
+}
+
+.input-modern:focus {
+  outline: none;
+  border-color: var(--keroro-green);
+  background: rgba(10, 20, 10, 0.6);
+  box-shadow: 0 0 0 4px rgba(126, 211, 33, 0.1);
+}
+
+.input-modern::placeholder {
+  color: var(--keroro-text-muted);
+}
+
+/* ========== 现代化卡片 ========== */
+.card-modern {
+  background: rgba(21, 32, 21, 0.6);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border: 1px solid rgba(126, 211, 33, 0.2);
+  border-radius: 16px;
+  padding: 24px;
+  transition: all 0.3s ease;
+  box-shadow: 0 4px 24px rgba(0, 0, 0, 0.2);
+}
+
+.card-modern:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+  border-color: rgba(126, 211, 33, 0.4);
+}
+
+/* ========== 现代化通知 (Toast) ========== */
+.toast-modern {
+  position: fixed;
+  bottom: 24px;
+  right: 24px;
+  min-width: 300px;
+  max-width: 500px;
+  padding: 16px 20px;
+  background: rgba(21, 32, 21, 0.95);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border: 1px solid rgba(126, 211, 33, 0.3);
+  border-radius: 12px;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4);
+  z-index: 10000;
+  animation: toast-slide-in 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.toast-modern.success {
+  border-color: rgba(81, 207, 102, 0.5);
+  background: rgba(21, 32, 21, 0.95);
+}
+
+.toast-modern.error {
+  border-color: rgba(255, 107, 107, 0.5);
+  background: rgba(32, 21, 21, 0.95);
+}
+
+.toast-modern.warning {
+  border-color: rgba(255, 224, 102, 0.5);
+  background: rgba(32, 32, 21, 0.95);
+}
+
+.toast-modern.info {
+  border-color: rgba(116, 192, 252, 0.5);
+  background: rgba(21, 21, 32, 0.95);
+}
+
+@keyframes toast-slide-in {
+  from {
+    transform: translateX(calc(100% + 24px));
+    opacity: 0;
+  }
+  to {
+    transform: translateX(0);
+    opacity: 1;
+  }
+}
+
+@keyframes toast-slide-out {
+  from {
+    transform: translateX(0);
+    opacity: 1;
+  }
+  to {
+    transform: translateX(calc(100% + 24px));
+    opacity: 0;
+  }
+}
+
+.toast-icon {
+  font-size: 24px;
+  flex-shrink: 0;
+}
+
+.toast-content {
+  flex: 1;
+}
+
+.toast-title {
+  font-weight: 600;
+  margin-bottom: 4px;
+  color: var(--keroro-text);
+}
+
+.toast-message {
+  font-size: 14px;
+  color: var(--keroro-text-muted);
+  line-height: 1.5;
+}
+
+/* ========== 现代化进度条 ========== */
+.progress-modern {
+  width: 100%;
+  height: 8px;
+  background: rgba(10, 20, 10, 0.4);
+  border-radius: 4px;
+  overflow: hidden;
+  position: relative;
+}
+
+.progress-modern-bar {
+  height: 100%;
+  background: linear-gradient(90deg, var(--keroro-green) 0%, var(--keroro-green-light) 100%);
+  border-radius: 4px;
+  transition: width 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+  position: relative;
+  overflow: hidden;
+}
+
+.progress-modern-bar::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: linear-gradient(
+    90deg,
+    transparent,
+    rgba(255, 255, 255, 0.3),
+    transparent
+  );
+  animation: progress-shimmer 2s infinite;
+}
+
+@keyframes progress-shimmer {
+  0% {
+    transform: translateX(-100%);
+  }
+  100% {
+    transform: translateX(100%);
+  }
+}
+
+/* ========== 现代化标签页 ========== */
+.tabs-modern {
+  display: flex;
+  gap: 8px;
+  border-bottom: 2px solid rgba(126, 211, 33, 0.2);
+  padding-bottom: 8px;
+}
+
+.tab-modern {
+  padding: 12px 24px;
+  background: transparent;
+  border: none;
+  color: var(--keroro-text-muted);
+  font-weight: 500;
+  cursor: pointer;
+  position: relative;
+  transition: all 0.3s ease;
+  border-radius: 8px 8px 0 0;
+}
+
+.tab-modern::after {
+  content: '';
+  position: absolute;
+  bottom: -10px;
+  left: 0;
+  right: 0;
+  height: 2px;
+  background: var(--keroro-green);
+  transform: scaleX(0);
+  transition: transform 0.3s ease;
+}
+
+.tab-modern.active {
+  color: var(--keroro-green);
+  background: rgba(126, 211, 33, 0.1);
+}
+
+.tab-modern.active::after {
+  transform: scaleX(1);
+}
+
+.tab-modern:hover:not(.active) {
+  color: var(--keroro-text);
+  background: rgba(126, 211, 33, 0.05);
+}
+
+/* ========== 现代化下拉菜单 ========== */
+.select-modern {
+  width: 100%;
+  padding: 12px 16px;
+  background: rgba(10, 20, 10, 0.4);
+  border: 2px solid rgba(126, 211, 33, 0.2);
+  border-radius: 8px;
+  color: var(--keroro-text);
+  font-size: 14px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  appearance: none;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%237ed321' d='M6 9L1 4h10z'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 12px center;
+  padding-right: 40px;
+}
+
+.select-modern:focus {
+  outline: none;
+  border-color: var(--keroro-green);
+  background-color: rgba(10, 20, 10, 0.6);
+  box-shadow: 0 0 0 4px rgba(126, 211, 33, 0.1);
+}
+
+/* ========== 现代化模态框 ========== */
+.modal-modern-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.7);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 10000;
+  animation: modal-fade-in 0.3s ease;
+}
+
+.modal-modern {
+  background: rgba(21, 32, 21, 0.95);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border: 1px solid rgba(126, 211, 33, 0.3);
+  border-radius: 20px;
+  padding: 32px;
+  max-width: 600px;
+  width: 90%;
+  max-height: 90vh;
+  overflow-y: auto;
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5);
+  animation: modal-slide-up 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+@keyframes modal-fade-in {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes modal-slide-up {
+  from {
+    transform: translateY(50px);
+    opacity: 0;
+  }
+  to {
+    transform: translateY(0);
+    opacity: 1;
+  }
+}
+
+/* ========== 现代化状态徽章 ========== */
+.badge-modern {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 12px;
+  border-radius: 20px;
+  font-size: 12px;
+  font-weight: 600;
+  background: rgba(126, 211, 33, 0.15);
+  border: 1px solid rgba(126, 211, 33, 0.3);
+  color: var(--keroro-green);
+}
+
+.badge-modern.success {
+  background: rgba(81, 207, 102, 0.15);
+  border-color: rgba(81, 207, 102, 0.3);
+  color: var(--keroro-success);
+}
+
+.badge-modern.error {
+  background: rgba(255, 107, 107, 0.15);
+  border-color: rgba(255, 107, 107, 0.3);
+  color: var(--keroro-danger);
+}
+
+.badge-modern.warning {
+  background: rgba(255, 224, 102, 0.15);
+  border-color: rgba(255, 224, 102, 0.3);
+  color: #ffd43b;
+}
+
+/* ========== 现代化工具提示 ========== */
+.tooltip-modern {
+  position: relative;
+  display: inline-block;
+}
+
+.tooltip-modern::before {
+  content: attr(data-tooltip);
+  position: absolute;
+  bottom: 100%;
+  left: 50%;
+  transform: translateX(-50%) translateY(-8px);
+  padding: 8px 12px;
+  background: rgba(0, 0, 0, 0.9);
+  color: white;
+  font-size: 12px;
+  white-space: nowrap;
+  border-radius: 8px;
+  opacity: 0;
+  pointer-events: none;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  z-index: 1000;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+}
+
+.tooltip-modern:hover::before {
+  opacity: 1;
+  transform: translateX(-50%) translateY(-4px);
+}
+
+/* ========== 响应式优化 ========== */
+@media (max-width: 768px) {
+  .toast-modern {
+    bottom: 16px;
+    right: 16px;
+    left: 16px;
+    min-width: auto;
+    max-width: none;
+  }
+  
+  .modal-modern {
+    padding: 24px;
+    border-radius: 16px;
+  }
+  
+  .card-modern {
+    padding: 16px;
+  }
+}
+
+/* ========== 深色模式优化 ========== */
+@media (prefers-color-scheme: dark) {
+  .glass-card {
+    background: rgba(10, 20, 10, 0.7);
+  }
+  
+  .modal-modern {
+    background: rgba(10, 20, 10, 0.98);
+  }
+}
+
+/* ========== 可访问性改进 ========== */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}
+
+/* ========== 焦点可见性 ========== */
+*:focus-visible {
+  outline: 2px solid var(--keroro-green);
+  outline-offset: 2px;
+  border-radius: 4px;
+}
+
+/* ========== 平滑滚动 ========== */
+html {
+  scroll-behavior: smooth;
+}
+
+/* ========== 选择文本样式 ========== */
+::selection {
+  background: rgba(126, 211, 33, 0.3);
+  color: var(--keroro-text);
+}
+
+::-moz-selection {
+  background: rgba(126, 211, 33, 0.3);
+  color: var(--keroro-text);
+}
+
